@@ -1,0 +1,363 @@
+﻿@page "/Registration"
+
+@* Directive Statement Imports *@
+@using ExpenseVoid.Models
+@using ExpenseVoid.Services
+@using ExpenseVoid.Interface
+@using ExpenseVoid.Provider
+@using Microsoft.Extensions.Logging;
+@using Microsoft.JSInterop
+@using System.Net.Mail
+@using System.Net
+
+@* Dependency Injection *@
+@inject IUser userService
+@inject ICurrency ecbExchangeProvider
+@inject IJSRuntime JSRuntime
+
+@* CSS Links *@
+<link rel="stylesheet" href="css/Account.css" />
+
+@* JavaScript Links *@
+<script src="js/Account.js"></script>
+
+<body class="bg-gray-200">
+    <div class="bg-black before:animate-pulse before:bg-gradient-to-b before:from-gray-900 overflow-hidden before:via-[#00FF00] before:to-gray-900 before:absolute">
+        <div id="myDIV">
+            <div class="w-[100vw] h-[100vh] px-3 sm:px-5 flex items-center justify-center absolute">
+                <div class="w-full sm:w-1/2 lg:2/3 px-6 bg-gray-500 bg-opacity-20 bg-clip-padding backdrop-filter backdrop-blur-sm text-white z-50 py-4 rounded-lg">
+                    <div class="w-full flex justify-center text-[#00FF00] text-xl mb:2 md:mb-5">
+                        Sign Up
+                    </div>
+                    <form>
+                        <div class="mb-6">
+                            <label for="username" class="block mb-2 text-xs font-medium text-white">User Name</label>
+                            <input type="text"
+                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                   placeholder="name@alchems.net" @bind="newUser.UserName" required />
+                        </div>
+                        <div class="mb-6">
+                            <label for="email" class="block mb-2 text-xs font-medium text-white">Your email</label>
+                            <input type="email"
+                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                   placeholder="name@alchems.net" @bind="newUser.Email" required />
+                        </div>
+                        <div class="mb-6">
+                            <label for="name" class="block mb-2 text-xs font-medium text-white">Your name</label>
+                            <input type="text"
+                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                   placeholder="Jane" @bind="newUser.FirstName" required />
+                        </div>
+                        <div class="mb-6">
+                            <label for="name" class="block mb-2 text-xs font-medium text-white">Your name</label>
+                            <input type="text"
+                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                   placeholder="Jane" @bind="newUser.LastName" required />
+                        </div>
+                        <div class="mb-6">
+                            <label for="password" class="block mb-2 text-xs font-medium text-white">Your password</label>
+                            <input type="password"
+                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                   placeholder="**********" @bind="newUser.Password" required />
+                        </div>
+                        <div class="mb-6">
+                            <label for="address" class="block mb-2 text-xs font-medium text-white">Your Permanent Address</label>
+                            <input type="text"
+                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                   placeholder="123 Street Name, City" @bind="newUser.PermanentAddress" required />
+                        </div>
+                        <div class="mb-6">
+                            <label for="address" class="block mb-2 text-xs font-medium text-white">Your Temporary Address</label>
+                            <input type="text"
+                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                   placeholder="123 Street Name, City" @bind="newUser.TemporaryAddress" required />
+                        </div>
+                        <div class="mb-6">
+                            <label for="currency" class="block mb-2 text-xs font-medium text-white">Your Preferred Currency</label>
+                            <select @bind="selectedCurrencyCode"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                <option value="">Select Currency</option>
+                                @foreach (var currency in availableCurrencies)
+                                {
+                                    <option value="@currency">@currency.CurrencyCode :: @currency.Value</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-6">
+                            <label for="gender" class="block mb-2 text-xs font-medium text-white">Gender</label>
+                            <input type="text"
+                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                   placeholder="Female/Male/Other" @bind="newUser.Gender" required />
+                        </div>
+                        <div class="mb-6">
+                            <label for="phone" class="block mb-2 text-xs font-medium text-white">Phone</label>
+                            <input type="tel"
+                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                   placeholder="123-456-7890" @bind="newUser.Phone" required />
+                        </div>
+                        <div class="flex flex-row justify-between">
+                            <div class="text-white text-sm md:text-md mr-4">
+                                <a href="#" class="custom-link">Forgot Password</a>
+                            </div>
+                            <div class="text-white text-sm md:text-md">
+                                <a href="/Login" class="custom-link">Sign In</a>
+                            </div>
+                        </div>
+
+                        <button type="button" class="pushable1 mx-auto block text-center"
+                                @onclick="GenerateVerificationCode">
+                            <span class="front1">
+                                Register
+                            </span>
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+@* <div>
+    <form>
+        <div>
+            <span>First Name</span>
+            <input type="text" @bind=newUser.FirstName />
+            <span>Last Name</span>
+            <input type="text" @bind=newUser.LastName />
+            <span>UserName</span>
+            <input type="text" @bind=newUser.UserName />
+            <span>Email</span>
+            <input type="text" @bind=newUser.Email />
+            <span>Password</span>
+            <input type="text" @bind=newUser.Password />
+            <span>Address</span>
+            <input type="text" @bind=newUser.PermanentAddress />
+            <span>Address</span>
+            <input type="text" @bind=newUser.TemporaryAddress />
+            <span>Gender</span>
+            <input type="text" @bind=newUser.Gender />
+            <span>Gender</span>
+            <input type="text" @bind=newUser.Phone /> 
+        </div>
+    </form>
+</div> *@
+
+@if (isVerificationCodeSent)
+{
+    <div>
+        <p>A verification code has been sent to your email. Enter the code below to complete your registration.</p>
+        <span>Verification Code</span>
+        <input type="text" @bind=userEnteredCode />
+        <button type="button" @onclick="VerifyCode">Verify Code</button>
+    </div>
+}
+
+@if (errorMessage != null)
+{
+    <p class="error-message">@errorMessage</p>
+}
+
+@code {
+    private User newUser = new User();
+    private string? errorMessage;
+    private bool isVerificationCodeSent = false;
+    private string userEnteredCode = "";
+    private string generatedCode = "";
+    private string selectedCurrencyCode;
+    private List<Currency> availableCurrenciesEcb = new();
+    private List<Currency> availableCurrenciesTcb = new();
+    private List<Currency> availableCurrencies = new();
+
+    private Currency SelectedCurrency
+    {
+        get => availableCurrencies.FirstOrDefault(c => c.CurrencyCode == selectedCurrencyCode);
+        set => selectedCurrencyCode = value?.CurrencyCode;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var ecbProvider = new EcbExchangeProvider(new LoggerFactory().CreateLogger<EcbExchangeProvider>());
+            var tcbProvider = new TcbExchangeProvider(new LoggerFactory().CreateLogger<TcbExchangeProvider>());
+
+            // Fetch the rates from both providers
+            availableCurrenciesTcb = (await tcbProvider.GetCurrencyLiveRatesAsync("EUR")).ToList();
+            availableCurrenciesEcb = (await ecbProvider.GetCurrencyLiveRatesAsync("EUR")).ToList();
+
+            // Combine both lists and handle duplicates
+            availableCurrencies = availableCurrenciesTcb
+                .Concat(availableCurrenciesEcb) // Combine the lists
+                .GroupBy(c => c.CurrencyCode)  // Group by currency code
+                .Select(g => new Currency
+                    {
+                        CurrencyCode = g.Key,
+                        Value = g.First().Value, // Use the value from the first occurrence
+                        LastModifiedDate = g.Max(c => c.LastModifiedDate) // Use the latest modification date
+                    })
+                .ToList();
+            availableCurrencies.Add(new Currency
+                {
+                    CurrencyCode = "NPR",
+                    Value = 142.23m, // Replace with the current exchange rate
+                    LastModifiedDate = DateTime.UtcNow
+                });
+            selectedCurrencyCode = newUser.Currency?.CurrencyCode;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error fetching currency rates: {ex.Message}";
+        }
+    }
+
+    private async Task GenerateVerificationCode()
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(newUser.Email))
+            {
+                errorMessage = "Please enter your email to receive the verification code.";
+                return;
+            }
+
+            // Generate a unique 6-digit verification code
+            Random random = new Random();
+            generatedCode = random.Next(100000, 999999).ToString();
+
+            // Send the code to the user's email
+            await SendVerificationEmail(newUser.Email, generatedCode);
+
+            isVerificationCodeSent = true;
+            errorMessage = null;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred while generating the verification code: {ex.Message}";
+        }
+    }
+    private async Task VerifyCode()
+    {
+        if (userEnteredCode == generatedCode)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(newUser.UserName) ||
+                string.IsNullOrEmpty(newUser.Email) ||
+                string.IsNullOrEmpty(newUser.FirstName) ||
+                string.IsNullOrEmpty(newUser.LastName) ||
+                string.IsNullOrEmpty(newUser.Password) ||
+                string.IsNullOrEmpty(newUser.PermanentAddress) ||
+                string.IsNullOrEmpty(newUser.TemporaryAddress) ||
+                string.IsNullOrEmpty(newUser.Gender) ||
+                string.IsNullOrEmpty(newUser.Phone))
+                {
+                    errorMessage = "All fields are required.";
+                    return;
+                }
+                // Save the user details after successful verification
+                await userService.SaveUserAsync(newUser);
+
+                // Clear the form and reset states
+                newUser = new User();
+                isVerificationCodeSent = false;
+                generatedCode = "";
+                userEnteredCode = "";
+                errorMessage = null;
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"An error occurred while saving the user: {ex.Message}";
+            }
+        }
+        else
+        {
+            errorMessage = "The verification code you entered is incorrect.";
+        }
+    }
+
+    private async Task SendVerificationEmail(string email, string code)
+    {
+        var message = new MimeKit.MimeMessage();
+        message.From.Add(new MimeKit.MailboxAddress("ExpenseVoid", "smstestusertest@gmail.com"));
+        message.To.Add(new MimeKit.MailboxAddress("", email));
+        message.Subject = "Your Verification Code";
+        message.Body = new MimeKit.TextPart("plain")
+            {
+                Text = $"Your verification code for Registering in the APP ExpenseVoid is: {code}"
+            };
+
+        try
+        {
+            using var client = new MailKit.Net.Smtp.SmtpClient();
+
+            // Connect to your email server
+            await client.ConnectAsync("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
+
+            // Authenticate using your email credentials
+            await client.AuthenticateAsync("smstestusertest@gmail.com", "actk npma lkxg bnit");
+
+            // Send the email
+            await client.SendAsync(message);
+
+            // Disconnect
+            await client.DisconnectAsync(true);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error sending email: {ex.Message}");
+        }
+    }
+
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+
+                await JSRuntime.InvokeVoidAsync("loadAccountJS");
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error initializing Account.js: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task AddNewUser()
+    {
+        try
+        {
+            // Check if any required field is null or empty
+            if (string.IsNullOrEmpty(newUser.UserName) ||
+                string.IsNullOrEmpty(newUser.Email) ||
+                string.IsNullOrEmpty(newUser.FirstName) ||
+                string.IsNullOrEmpty(newUser.LastName) ||
+                string.IsNullOrEmpty(newUser.Password) ||
+                string.IsNullOrEmpty(newUser.PermanentAddress) ||
+                string.IsNullOrEmpty(newUser.TemporaryAddress) ||
+                string.IsNullOrEmpty(newUser.Gender) ||
+                string.IsNullOrEmpty(newUser.VerificationCode) ||
+                string.IsNullOrEmpty(newUser.Phone))
+            {
+                errorMessage = "All fields are required.";
+                return;
+            }
+
+            // The UserId will be generated automatically, so no need to check for duplicates manually here.
+            await userService.SaveUserAsync(newUser);
+
+            newUser = new User();
+            errorMessage = null; // Clear any previous error messages
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred while adding the user: {ex.Message}";
+            Console.WriteLine(errorMessage); // Log for debugging
+        }
+    }
+}
