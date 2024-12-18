@@ -9,7 +9,11 @@ namespace ExpenseVoid.Models
     public class TransactionType
     {
         public Guid TypeID { get; set; } = Guid.NewGuid();
-        public string? Name { get; set; }
+        public Double? Credit { get; set; }
+        public Double? Debit { get; set; }
+        public Double? Debt { get; set; }
+
+
         //a action field can be created for extra protection
     }
 }

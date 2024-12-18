@@ -6,39 +6,37 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Windows.System;
 
 namespace ExpenseVoid.Services
 {
-    
-    public class TagService : ITag
+    public class GroupService : IGroup
     {
-        private readonly string tagFilePath = Path.Combine(AppContext.BaseDirectory, "ExpenseVoid", "Tags&Source", "TagDetails.json");
-        public async Task SaveTagAsync(Tag tag)
+        private readonly string groupFilePath = Path.Combine(AppContext.BaseDirectory, "ExpenseVoid", "Tags&Source", "Group.json");
+        public async Task SaveGroupAsync(Group group)
         {
             try
             {
-                if(tag.TagId == Guid.Empty)
+                if (group.GroupID == Guid.Empty)
                 {
-                    tag.TagId = Guid.NewGuid();
+                    group.GroupID = Guid.NewGuid();
                 }
-                var tags = await LoadTagsAsync();
-                tags.Add(tag);
-                await SaveTagsAsync(tags);
+                var groups = await LoadGroupsAsync();
+                groups.Add(group);
+                await SaveGroupsAsync(groups);
             }
             catch (Exception ex)
-            { 
-                Console.WriteLine($"Error saving user: {ex.Message}");
+            {
+                Console.WriteLine($"Error saving Target: {ex.Message}");
                 throw;
             }
         }
-        private async Task SaveTagsAsync(List<Tag> tags)
+        private async Task SaveGroupsAsync(List<Group> groups)
         {
             try
             {
-                var json = JsonSerializer.Serialize(tags, new JsonSerializerOptions { WriteIndented = true });
+                var json = JsonSerializer.Serialize(groups, new JsonSerializerOptions { WriteIndented = true });
 
-                await File.WriteAllTextAsync(tagFilePath, json);
+                await File.WriteAllTextAsync(groupFilePath, json);
             }
             catch (IOException ioEx)
             {
@@ -51,24 +49,23 @@ namespace ExpenseVoid.Services
                 throw;
             }
         }
-        public async Task EditTagAsync(Tag tag)
+        public async Task EditGroupAsync(Group group)
         {
             try
             {
 
-                var tags = await LoadTagsAsync();
+                var groups = await LoadGroupsAsync();
 
 
-                var existingTag = tags.FirstOrDefault(u => u.TagId == tag.TagId);
+                var existingGroup = groups.FirstOrDefault(u => u.GroupID == group.GroupID);
 
-                if (existingTag != null)
+                if (existingGroup != null)
                 {
- 
-                    existingTag.TagName = tag.TagName;
-                    existingTag.TagColor = tag.TagColor;
-               
-                    
-                    await SaveTagsAsync(tags);
+
+                    existingGroup.GroupName = group.GroupName;
+
+
+                    await SaveGroupsAsync(groups);
                 }
                 else
                 {
@@ -82,48 +79,48 @@ namespace ExpenseVoid.Services
             }
         }
 
-        public async Task<List<Tag>> LoadTagsAsync()
+        public async Task<List<Group>> LoadGroupsAsync()
         {
             try
             {
-                if (!File.Exists(tagFilePath))
+                if (!File.Exists(groupFilePath))
                 {
-                    return new List<Tag>();
+                    return new List<Group>();
                 }
 
-                var json = await File.ReadAllTextAsync(tagFilePath);
-                return JsonSerializer.Deserialize<List<Tag>>(json) ?? new List<Tag>();
+                var json = await File.ReadAllTextAsync(groupFilePath);
+                return JsonSerializer.Deserialize<List<Group>>(json) ?? new List<Group>();
             }
             catch (JsonException jsonEx)
             {
                 Console.WriteLine($"JSON deserialization error: {jsonEx.Message}");
-                return new List<Tag>();
+                return new List<Group>();
             }
             catch (IOException ioEx)
             {
                 Console.WriteLine($"I/O error while loading users: {ioEx.Message}");
-                return new List<Tag>();
+                return new List<Group>();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Unexpected error while loading users: {ex.Message}");
-                return new List<Tag>();
+                return new List<Group>();
             }
         }
 
-        public async Task RemoveTagAsync(Tag tag)
+        public async Task RemoveGroupAsync(Group group)
         {
             try
             {
-                var tags = await LoadTagsAsync();
-                var tagToRemove = tags.FirstOrDefault(u => u.TagId == tag.TagId);
+                var groups = await LoadGroupsAsync();
+                var groupToRemove = groups.FirstOrDefault(u => u.GroupID == group.GroupID);
 
-                if (tagToRemove != null)
+                if (groupToRemove != null)
                 {
-                    tags.Remove(tagToRemove);
+                    groups.Remove(groupToRemove);
 
 
-                    await SaveTagsAsync(tags);
+                    await SaveGroupsAsync(groups);
                 }
             }
             catch (Exception ex)

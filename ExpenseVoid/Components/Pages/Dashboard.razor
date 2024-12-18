@@ -1,0 +1,250 @@
+﻿@* Directive statement Import *@
+@using Microsoft.JSInterop
+
+@* Dependency Injection *@
+@inject IJSRuntime JSRuntime
+@page "/Dashboard"
+
+@* CSS link *@
+<link rel="stylesheet" href="css/sidebar.css" />
+<link rel="stylesheet" href="css/Vanta.css" />
+<link rel="stylesheet" href="css/DashboardAddon.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+@* JavaScript Imports *@
+<script src="js/sidebar.js"></script>
+<script src="js/Vanta.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    let expensesChart;
+    function initializeCharts() {
+        const darkMode = {
+            backgroundColor: '#18181b',
+            gridColor: '#27272a',
+            textColor: '#f0f5f3'
+        };
+        expensesChart = new Chart(document.getElementById('expensesChart'), {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                datasets: [{
+                    label: 'Income',
+                    data: [5200, 5400, 5300, 5500, 5200, 5600, 5300],
+                    borderColor: '#3b82f6',
+                    tension: 0.4,
+                    borderWidth: 2,
+                    fill: false
+                }, {
+                    label: 'Expenses',
+                    data: [5000, 5300, 5100, 5200, 5400, 5300, 5100],
+                    borderColor: '#a855f7',
+                    tension: 0.4,
+                    borderWidth: 2,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            color: darkMode.textColor,
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    }
+                },
+                scales: {
+                    y: { display: false },
+                    x: { display: false }
+                }
+            }
+        });
+        caloriesChart = new Chart(document.getElementById('caloriesChart'), {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [1623, 377],
+                    backgroundColor: ['#3b82f6', '#27272a'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '85%',
+                plugins: { legend: { display: false } }
+            }
+        });
+        // Call this after page load
+        document.addEventListener("DOMContentLoaded", function () {
+            initializeCharts();
+        });
+    }
+    
+    
+</script>
+
+
+
+<body class="bg-gray-900 text-white">
+    <div id="vanta-bg" class="flex flex-col md:flex-row gap-4 p-4">
+        <!-- Sidebar / Navigation Menu -->
+        <div>
+            <NavMenu />
+        </div>
+
+        <div class="max-w-6xl grid p-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+                <div class="card p-6 mb-[20px]">
+
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-White-400 text-sm font-medium mr-[17px]">Monthly Expenses</h2>
+                        <div class="flex items-center gap-2">
+                            <span class="text-White-400 text-xs">Mar 1, 2023 - Jul 31, 2024</span>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <h3 class="text-4xl font-semibold">$5,420<span class="text-sm text-white-400 ml-1">avg.</span></h3>
+                    </div>
+                    <div style="height: 120px;">
+                        <canvas id="expensesChart"></canvas>
+                    </div>
+                </div>
+                <div class="card p-2">
+                    <div class="card p-6 border-2 border-indigo-500">
+                        <h2 class="text-white-400 mb-[17px] text-[#50d71e]">Top 5 Highest Transactions</h2>
+                        <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 10000$, Paid -> John</h2>
+                        <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 10000$, Paid -> John</h2>
+                        <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 10000$, Paid -> John</h2>
+                        <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 10000$, Paid -> John</h2>
+                        <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 10000$, Paid -> John</h2>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="text-sm font-medium mb-1">
+                            <i class="fas fa-fire-flame-curved text-orange-500 mr-2"></i>Balance
+                        </h2>
+                        <div class="text-2xl font-semibold calories-value">10000$</div>
+
+                    </div>
+                </div>
+                <div class="space-y-4 mb-6">
+                    <div>
+                        <h3 class="text-sm font-medium mb-1">
+                            <i class="fas fa-shoe-prints text-blue-500 mr-2"></i>Total Profile
+                        </h3>
+                        <div class="text-2xl font-semibold">4</div>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium mb-1">
+                            <i class="fas fa-dumbbell text-purple-500 mr-2"></i>Total Transactions
+                        </h3>
+                        <div class="text-2xl font-semibold">100</div>
+                    </div>
+                </div>
+                <div class="flex justify-center" style="height: 160px;">
+                    <canvas id="caloriesChart"></canvas>
+                </div>
+            </div>
+            <div class="card p-6">
+                <div class="card p-6 mb-[15px] border-2 border-indigo-500">
+                    <h2 class="text-white-400 text-sm mb-2">Total Income</h2>
+                    <div class="text-3xl font-semibold">$228,441</div>
+                    <div class="text-green-500 text-sm">↗ 3.3%</div>
+                </div>
+
+                <div class="card p-6 mb-[15px] border-2 border-indigo-500">
+                    <h2 class="text-white-400 text-sm mb-2">Total Expenses</h2>
+                    <div class="text-3xl font-semibold">$71,887</div>
+                    <div class="text-yellow-500 text-sm">→ 0.0%</div>
+                </div>
+
+                <div class="card p-6 border-2 border-indigo-500">
+                    <h2 class="text-white-400 text-sm mb-2">Total Saving</h2>
+                    <div class="text-3xl font-semibold">$156,554</div>
+                    <div class="text-red-500 text-sm">↘ 3.3%</div>
+                </div>
+            </div>
+
+
+            <div class="card p-2">
+                <div class="card p-6 border-2 border-indigo-500">
+                    <h2 class="text-white-400 mb-[17px] text-[#50d71e]">Top 5 Lowest Transactions</h2>
+                    <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 20$, Paid -> John</h2>
+                    <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 20$, Paid -> John</h2>
+                    <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 20$, Paid -> John</h2>
+                    <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 20$, Paid -> John</h2>
+                    <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 20$, Paid -> John</h2>
+                </div>
+            </div>
+            <div class="card p-6 col-span-2">
+
+            </div>
+
+            
+        </div>
+        <div class="card w-[400px] h-[937px] mt-[14px] p-6">
+            <div class="card p-4 border-2 border-indigo-500 mb-[20px]">
+               <h2 class="text-white-400 mb-[17px] text-[#50d71e]">User Profiles</h2>
+                    <h2 class="text-White-400 text-sm font-medium mb-[17px]">Rakshita Baidya</h2>
+                    <h2 class="text-White-400 text-sm font-medium mb-[17px]">Ojash Adhikari</h2>
+                    <h2 class="text-White-400 text-sm font-medium mb-[17px]">Kshitiz Shrestha</h2>
+                    <h2 class="text-White-400 text-sm font-medium mb-[17px]">Devanshu Aryal</h2>
+                    <h2 class="text-White-400 text-sm font-medium mb-[17px]">Bidur Neupane</h2>
+            </div>
+            <div class="card p-4 border-2 border-indigo-500">
+                <h2 class="text-white-400 mb-[17px] text-[#50d71e]">User Profiles</h2>
+                <h2 class="text-White-400 text-sm font-medium mb-[17px]">Rakshita Baidya</h2>
+                <h2 class="text-White-400 text-sm font-medium mb-[17px]">Ojash Adhikari</h2>
+                <h2 class="text-White-400 text-sm font-medium mb-[17px]">Kshitiz Shrestha</h2>
+                <h2 class="text-White-400 text-sm font-medium mb-[17px]">Devanshu Aryal</h2>
+                <h2 class="text-White-400 text-sm font-medium mb-[17px]">Bidur Neupane</h2>
+            </div>
+        </div>
+
+    </div>
+
+
+</body>
+
+@code {
+    private bool vantaInitialized;
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !vantaInitialized)
+        {
+            try
+            {
+                vantaInitialized = true;
+
+
+
+                // Ensure scripts are loaded
+                await JSRuntime.InvokeVoidAsync("loadVantaScripts");
+
+                // Initialize Vanta.js
+                await JSRuntime.InvokeVoidAsync("initializeVanta");
+                await JSRuntime.InvokeVoidAsync("initializeCharts");
+
+                // await JSRuntime.InvokeVoidAsync("loadSidebarJS");
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error initializing Vanta.js: {ex.Message}");
+            }
+        }
+    }
+}

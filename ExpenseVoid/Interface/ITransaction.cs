@@ -13,5 +13,7 @@ namespace ExpenseVoid.Interface
         Task RemoveTransactionAsync(Transaction transaction);
         Task EditTransactionAsync(Transaction transaction);
         Task<List<Transaction>> LoadTransactionAsync();
+
+        Task ProcessTransactionAsync(Transaction transaction);
     }
 }

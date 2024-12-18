@@ -13,9 +13,11 @@
 
 @* CSS Links *@
 <link rel="stylesheet" href="css/Account.css" />
+<link rel="stylesheet" href="css/Toast.css" />
 
 @* JavaScript Links *@
 <script src="js/Account.js"></script>
+ @* <script src="js/CustomToasts.js"></script> *@
 
 <body class="bg-gray-200">
     <div class="bg-black before:animate-pulse before:bg-gradient-to-b before:from-gray-900 overflow-hidden before:via-[#00FF00] before:to-gray-900 before:absolute">
@@ -50,11 +52,11 @@
                         <button type="submit" class="pushable1">
                             <span class="front1">Login</span>
                         </button>
-                        @if (!string.IsNullOrEmpty(errorMessage))
-                        {
-                            <p class="text-red-500 mt-2">@errorMessage</p>
-                        }
                     </form>
+                    @if (errorMessage != null)
+                    {
+                        <p>@errorMessage</p>
+                    }
                 </div>
             </div>
         </div>
@@ -62,13 +64,28 @@
 </body>
 @if (errorMessage != null)
 {
-    <p class="error-message">@errorMessage</p>
+    
+    @*   <section id="toast" class="error">
+          <div id="icon-wrapper">
+              <div id="icon"></div>
+          </div>
+          <div id="toast-message">
+              <h4>Login Error:</h4>
+              <p>@errorMessage</p>
+          </div>
+          <button id="toast-close"></button>
+          <div id="timer"></div>
+      </section> *@
 }
+
 
 @code {
     private string email = string.Empty;
     private string password = string.Empty;
     private string? errorMessage;
+
+
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -77,6 +94,7 @@
             {
 
                 await JSRuntime.InvokeVoidAsync("loadAccountJS");
+                await JSRuntime.InvokeVoidAsync("initializeToasts");
 
             }
             catch (Exception ex)
@@ -109,7 +127,8 @@
                 }
                 else
                 {
-                    Navigation.NavigateTo("/Test");
+                    Navigation.NavigateTo("/Dashboard");
+                    await JSRuntime.InvokeVoidAsync("eval", "window.location.reload()");
                     errorMessage = string.Empty;
 
 

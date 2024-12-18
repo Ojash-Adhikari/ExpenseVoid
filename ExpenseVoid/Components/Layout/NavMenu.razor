@@ -1,43 +1,78 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">ExpenseVoid</a>
-    </div>
+﻿@page "/NavMenu"
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+@using Microsoft.AspNetCore.Components.Routing
+
+@* CSS Link *@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
+<link rel="stylesheet" href="css/sidebar" />
+
+@* JavaScript Import *@
+<script src="js/sidebar.js"></script>
+
+<div class="menu">
+    <ul>
+        <!-- Home -->
+        <li class="item active">
+            <i class="fa-solid fa-house-user"></i>
+            <NavLink class="nav-link" href="/Dashboard" Match="NavLinkMatch.All" @onclick="HandleClick">
+                Home
+            </NavLink>
+        </li>
+
+        <!-- User Section -->
+        <li class="item">
+            <i class="fa-solid fa-user"></i> Users <i class="fa-solid fa-chevron-down"></i>
+            <ul>
+                <li>
+                    <NavLink class="nav-link" href="/NewProfile" @onclick="HandleClick">Add Profile</NavLink>
+                </li>
+                <li>
+                    <NavLink class="nav-link" href="/UserProfile" @onclick="HandleClick">User Profile</NavLink>
+                </li>
+            </ul>
+        </li>
+
+        <!-- Transaction Section -->
+        <li class="item">
+            <i class="fa-solid fa-tasks"></i> Transactions <i class="fa-solid fa-chevron-down"></i>
+            <ul>
+                <li>
+                    <NavLink class="nav-link" href="/Transactions" @onclick="HandleClick">Transactions</NavLink>
+                </li>
+                <li>
+                    <NavLink class="nav-link" href="/Tags" @onclick="HandleClick">Tags</NavLink>
+                </li>
+            </ul>
+        </li>
+
+        @* debt Section *@
+        <li class="item">
+            <i class="fa-solid fa-tasks"></i> Debt <i class="fa-solid fa-chevron-down"></i>
+            <ul>
+                <li>
+                    <NavLink class="nav-link" href="/Debt" @onclick="HandleClick">Debt</NavLink>
+                </li>
+                <li>
+                    <NavLink class="nav-link" href="/Source" @onclick="HandleClick">Source</NavLink>
+                </li>
+            </ul>
+        </li>
+
+        <!-- LogOut -->
+        <li class="item">
+            <i class="fa fa-sign-out"></i>
+            <NavLink class="nav-link" href="/" @onclick="HandleClick">Logout</NavLink>
+        </li>
+        <div id="action" class=""></div>
+    </ul>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+@code {
+    private async Task HandleClick(MouseEventArgs args)
+    {
+        // Call JavaScript to reload the page
+        await JSRuntime.InvokeVoidAsync("eval", "window.location.reload()");
+    }
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-         @* <div class="nav-item px-3">
-             <NavLink class="nav-link" href="counter">
-                 <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-             </NavLink>
-         </div>
-         <div class="nav-item px-3">
-             <NavLink class="nav-link" href="weather">
-                 <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-             </NavLink>
-         </div>  *@
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="Registration">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Registration
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="Login">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Login
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="Test">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Test
-            </NavLink>
-        </div>
-
-    </nav>
-</div>
+}

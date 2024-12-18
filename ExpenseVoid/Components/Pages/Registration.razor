@@ -17,6 +17,7 @@
 
 @* CSS Links *@
 <link rel="stylesheet" href="css/Account.css" />
+<link rel="stylesheet" href="css/Verification.css" />
 
 @* JavaScript Links *@
 <script src="js/Account.js"></script>
@@ -30,72 +31,81 @@
                         Sign Up
                     </div>
                     <form>
-                        <div class="mb-6">
-                            <label for="username" class="block mb-2 text-xs font-medium text-white">User Name</label>
-                            <input type="text"
-                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                   placeholder="name@alchems.net" @bind="newUser.UserName" required />
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="username" class="block mb-2 text-xs font-medium text-white">User Name</label>
+                                <input type="text"
+                                       class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                       placeholder="name@alchems.net" @bind="newUser.UserName" required />
+                            </div>
+                            <div>
+                                <label for="email" class="block mb-2 text-xs font-medium text-white">Your email</label>
+                                <input type="email"
+                                       class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                       placeholder="name@alchems.net" @bind="newUser.Email" required />
+                            </div>
+                            <div>
+                                <label for="name" class="block mb-2 text-xs font-medium text-white">Your First Name</label>
+                                <input type="text"
+                                       class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                       placeholder="Jane" @bind="newUser.FirstName" required />
+                            </div>
+                            <div>
+                                <label for="lastname" class="block mb-2 text-xs font-medium text-white">Your Last Name</label>
+                                <input type="text"
+                                       class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                       placeholder="Doe" @bind="newUser.LastName" required />
+                            </div>
+                            <div>
+                                <label for="password" class="block mb-2 text-xs font-medium text-white">Your Password</label>
+                                <input type="password"
+                                       class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                       placeholder="**********" @bind="newUser.Password" required />
+                            </div>
+                            <div>
+                                <label for="address" class="block mb-2 text-xs font-medium text-white">Permanent Address</label>
+                                <input type="text"
+                                       class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                       placeholder="123 Street Name, City" @bind="newUser.PermanentAddress" required />
+                            </div>
+                            <div>
+                                <label for="tempaddress" class="block mb-2 text-xs font-medium text-white">Temporary Address</label>
+                                <input type="text"
+                                       class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                       placeholder="123 Street Name, City" @bind="newUser.TemporaryAddress" required />
+                            </div>
+                            <div>
+                                <label for="currency" class="block mb-2 text-xs font-medium text-white">Your Preferred Currency</label>
+                                <select @bind="selectedCurrencyCode"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                    <option value="">Select Currency</option>
+                                    @foreach (var currency in availableCurrencies)
+                                    {
+                                        <option value="@currency.CurrencyCode">@currency.CurrencyCode :: @currency.Value</option>
+                                    }
+                                </select>
+                            </div>
+                            <div>
+                                <label for="balance" class="block mb-2 text-xs font-medium text-white">Balance</label>
+                                <input type="number"
+                                       class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                       placeholder="1000" @bind="newUser.Balance" required />
+                            </div>
+                            <div>
+                                <label for="gender" class="block mb-2 text-xs font-medium text-white">Gender</label>
+                                <input type="text"
+                                       class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                       placeholder="Female/Male/Other" @bind="newUser.Gender" required />
+                            </div>
+                            <div>
+                                <label for="phone" class="block mb-2 text-xs font-medium text-white">Phone</label>
+                                <input type="tel"
+                                       class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                       placeholder="123-456-7890" @bind="newUser.Phone" required />
+                            </div>
                         </div>
-                        <div class="mb-6">
-                            <label for="email" class="block mb-2 text-xs font-medium text-white">Your email</label>
-                            <input type="email"
-                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                   placeholder="name@alchems.net" @bind="newUser.Email" required />
-                        </div>
-                        <div class="mb-6">
-                            <label for="name" class="block mb-2 text-xs font-medium text-white">Your name</label>
-                            <input type="text"
-                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                   placeholder="Jane" @bind="newUser.FirstName" required />
-                        </div>
-                        <div class="mb-6">
-                            <label for="name" class="block mb-2 text-xs font-medium text-white">Your name</label>
-                            <input type="text"
-                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                   placeholder="Jane" @bind="newUser.LastName" required />
-                        </div>
-                        <div class="mb-6">
-                            <label for="password" class="block mb-2 text-xs font-medium text-white">Your password</label>
-                            <input type="password"
-                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                   placeholder="**********" @bind="newUser.Password" required />
-                        </div>
-                        <div class="mb-6">
-                            <label for="address" class="block mb-2 text-xs font-medium text-white">Your Permanent Address</label>
-                            <input type="text"
-                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                   placeholder="123 Street Name, City" @bind="newUser.PermanentAddress" required />
-                        </div>
-                        <div class="mb-6">
-                            <label for="address" class="block mb-2 text-xs font-medium text-white">Your Temporary Address</label>
-                            <input type="text"
-                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                   placeholder="123 Street Name, City" @bind="newUser.TemporaryAddress" required />
-                        </div>
-                        <div class="mb-6">
-                            <label for="currency" class="block mb-2 text-xs font-medium text-white">Your Preferred Currency</label>
-                            <select @bind="selectedCurrencyCode"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                <option value="">Select Currency</option>
-                                @foreach (var currency in availableCurrencies)
-                                {
-                                    <option value="@currency">@currency.CurrencyCode :: @currency.Value</option>
-                                }
-                            </select>
-                        </div>
-                        <div class="mb-6">
-                            <label for="gender" class="block mb-2 text-xs font-medium text-white">Gender</label>
-                            <input type="text"
-                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                   placeholder="Female/Male/Other" @bind="newUser.Gender" required />
-                        </div>
-                        <div class="mb-6">
-                            <label for="phone" class="block mb-2 text-xs font-medium text-white">Phone</label>
-                            <input type="tel"
-                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 md:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                   placeholder="123-456-7890" @bind="newUser.Phone" required />
-                        </div>
-                        <div class="flex flex-row justify-between">
+
+                        <div class="flex flex-row justify-between mt-4">
                             <div class="text-white text-sm md:text-md mr-4">
                                 <a href="#" class="custom-link">Forgot Password</a>
                             </div>
@@ -104,13 +114,14 @@
                             </div>
                         </div>
 
-                        <button type="button" class="pushable1 mx-auto block text-center"
+                        <button type="button" class="pushable1 mx-auto block text-center mt-4"
                                 @onclick="GenerateVerificationCode">
                             <span class="front1">
                                 Register
                             </span>
                         </button>
                     </form>
+
 
                 </div>
             </div>
@@ -145,12 +156,18 @@
 
 @if (isVerificationCodeSent)
 {
-    <div>
+    <div class="overlay" style="display: @(isVerificationModalVisible ? "block" : "none")">
+    <div class="modal-content">
         <p>A verification code has been sent to your email. Enter the code below to complete your registration.</p>
         <span>Verification Code</span>
-        <input type="text" @bind=userEnteredCode />
-        <button type="button" @onclick="VerifyCode">Verify Code</button>
+        <input type="text" @bind="userEnteredCode" class="verification-input" />
+        <button type="button" class="verify-button" @onclick="VerifyCode">Verify Code</button>
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <p class="error-message">@errorMessage</p>
+        }
     </div>
+</div>
 }
 
 @if (errorMessage != null)
@@ -164,15 +181,20 @@
     private bool isVerificationCodeSent = false;
     private string userEnteredCode = "";
     private string generatedCode = "";
-    private string selectedCurrencyCode;
+    private string? selectedCurrencyCode;
     private List<Currency> availableCurrenciesEcb = new();
     private List<Currency> availableCurrenciesTcb = new();
     private List<Currency> availableCurrencies = new();
+    private bool isVerificationModalVisible = true;
 
     private Currency SelectedCurrency
     {
-        get => availableCurrencies.FirstOrDefault(c => c.CurrencyCode == selectedCurrencyCode);
-        set => selectedCurrencyCode = value?.CurrencyCode;
+        get => newUser.Currency;
+        set
+        {
+            newUser.Currency = value;
+            selectedCurrencyCode = value?.CurrencyCode;
+        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -182,34 +204,40 @@
             var ecbProvider = new EcbExchangeProvider(new LoggerFactory().CreateLogger<EcbExchangeProvider>());
             var tcbProvider = new TcbExchangeProvider(new LoggerFactory().CreateLogger<TcbExchangeProvider>());
 
-            // Fetch the rates from both providers
+            // Fetch rates from providers
             availableCurrenciesTcb = (await tcbProvider.GetCurrencyLiveRatesAsync("EUR")).ToList();
             availableCurrenciesEcb = (await ecbProvider.GetCurrencyLiveRatesAsync("EUR")).ToList();
 
-            // Combine both lists and handle duplicates
+            // Combine and handle duplicates
             availableCurrencies = availableCurrenciesTcb
-                .Concat(availableCurrenciesEcb) // Combine the lists
-                .GroupBy(c => c.CurrencyCode)  // Group by currency code
+                .Concat(availableCurrenciesEcb)
+                .GroupBy(c => c.CurrencyCode)
                 .Select(g => new Currency
                     {
                         CurrencyCode = g.Key,
-                        Value = g.First().Value, // Use the value from the first occurrence
-                        LastModifiedDate = g.Max(c => c.LastModifiedDate) // Use the latest modification date
+                        Value = g.First().Value,
+                        LastModifiedDate = g.Max(c => c.LastModifiedDate)
                     })
                 .ToList();
+
+            // Add a custom currency
             availableCurrencies.Add(new Currency
                 {
                     CurrencyCode = "NPR",
-                    Value = 142.23m, // Replace with the current exchange rate
+                    Value = 142.23m,
                     LastModifiedDate = DateTime.UtcNow
                 });
-            selectedCurrencyCode = newUser.Currency?.CurrencyCode;
+
+            // Initialize selected currency
+            newUser.Currency ??= new Currency();
+            selectedCurrencyCode = newUser.Currency.CurrencyCode ?? string.Empty;
         }
         catch (Exception ex)
         {
             errorMessage = $"Error fetching currency rates: {ex.Message}";
         }
     }
+
 
     private async Task GenerateVerificationCode()
     {
@@ -240,6 +268,7 @@
     {
         if (userEnteredCode == generatedCode)
         {
+          isVerificationModalVisible = false;
             try
             {
                 if (string.IsNullOrEmpty(newUser.UserName) ||

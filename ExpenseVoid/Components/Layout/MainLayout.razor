@@ -1,17 +1,42 @@
 ﻿@inherits LayoutComponentBase
+@using ExpenseVoid.Components.Pages
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavManager
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+<style>
+    #vanta-bg {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+    }
+</style>
+
+
+<body style="font-family:'Retro Gaming';">
+
+    @if (!isAuthenticated)
+    {
+        <div>
+            @Body
+        </div>
+    }
+    else
+    {
+        <div id="vanta-bg">
+
+            <div class="sidebar">
+                <NavMenu />
+
+            </div>
         </div>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+    }
+</body>
+
+@code{
+    private bool isAuthenticated = false;
+}

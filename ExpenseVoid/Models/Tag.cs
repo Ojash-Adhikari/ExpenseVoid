@@ -10,7 +10,6 @@ namespace ExpenseVoid.Models
     {
         public Guid TagId { get; set; } = Guid.NewGuid();
         public string? TagName { get; set; }
-        public string? TagType { get; set; } // refence to transaction type
         public string? TagColor { get; set; }
     }
 }

@@ -59,15 +59,16 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Remove="Components\Pages\Test.razor" />
-    </ItemGroup>
-
-    <ItemGroup>
       <None Remove="Resources\Fonts\Retro-Gaming.ttf" />
     </ItemGroup>
 
     <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\css\Verification.css" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="MailKit" Version="4.9.0" />
+        <PackageReference Include="Microcharts.Maui" Version="1.0.0" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
@@ -76,18 +77,6 @@
 
     <ItemGroup>
       <Folder Include="Persistence\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <UpToDateCheckInput Remove="Components\Pages\Test.razor" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="Components\Pages\Test.razor" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Include="Components\Pages\Test.razor" />
     </ItemGroup>
 
 </Project>

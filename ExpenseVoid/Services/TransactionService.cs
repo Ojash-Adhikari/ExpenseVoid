@@ -12,6 +12,8 @@ namespace ExpenseVoid.Services
     public class TransactionService : ITransaction
     {
         private readonly string transactionFilePath = Path.Combine(AppContext.BaseDirectory, "ExpenseVoid", "Transaction", "Transaction.json");
+        private readonly string usersFilePath = Path.Combine(AppContext.BaseDirectory, "ExpenseVoid", "Account", "UserDetails.json");
+
         public async Task SaveTransactionAsync(Transaction transaction)
         {
             try
@@ -128,6 +130,105 @@ namespace ExpenseVoid.Services
                 throw;
             }
         }
+
+        private async Task SaveUsersAsync(List<User> users)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(users, new JsonSerializerOptions { WriteIndented = true });
+
+                await File.WriteAllTextAsync(usersFilePath, json);
+            }
+            catch (IOException ioEx)
+            {
+                Console.WriteLine($"I/O error while loading users: {ioEx.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error while saving users: {ex.Message}");
+                throw;
+            }
+        }
+        private async Task<List<User>> LoadUsersAsync()
+        {
+            try
+            {
+                if (!File.Exists(usersFilePath))
+                {
+                    return new List<User>();
+                }
+
+                var json = await File.ReadAllTextAsync(usersFilePath);
+                return JsonSerializer.Deserialize<List<User>>(json) ?? new List<User>();
+            }
+            catch (JsonException jsonEx)
+            {
+                Console.WriteLine($"JSON deserialization error: {jsonEx.Message}");
+                return new List<User>();
+            }
+            catch (IOException ioEx)
+            {
+                Console.WriteLine($"I/O error while loading users: {ioEx.Message}");
+                return new List<User>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error while loading users: {ex.Message}");
+                return new List<User>();
+            }
+        }
+        //Calculation part
+
+        public async Task ProcessTransactionAsync(Transaction transaction)
+        {
+            try
+            {
+                if (transaction.User == null || transaction.TransactionType == null || transaction.TransactionAmount == null)
+                {
+                    throw new ArgumentException("Transaction must have a user, type, and amount.");
+                }
+
+                // Load the existing users
+                var users = await LoadUsersAsync();
+                var userToUpdate = users.FirstOrDefault(u => u.UserID == transaction.User.UserID);
+
+                if (userToUpdate == null)
+                {
+                    throw new Exception($"User with ID {transaction.User.UserID} not found.");
+                }
+
+                // Process based on TransactionType
+                if (transaction.TransactionType.Debit.HasValue)
+                {
+                    // Deduct balance for Debit transactions
+                    userToUpdate.Balance -= transaction.TransactionAmount.Value;
+                }
+                else if (transaction.TransactionType.Credit.HasValue)
+                {
+                    // Add balance for Credit transactions
+                    userToUpdate.Balance += transaction.TransactionAmount.Value;
+                }
+
+                // Update the user object in the transaction
+                transaction.User = userToUpdate;
+
+                // Save the updated user details back to the JSON file
+                await SaveUsersAsync(users);
+
+                // Save the transaction with the updated user details
+                await SaveTransactionAsync(transaction);
+
+                Console.WriteLine($"Transaction processed successfully. New balance for user {userToUpdate.UserName}: {userToUpdate.Balance}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error processing transaction: {ex.Message}");
+                throw;
+            }
+        }
+
+
 
     }
 }

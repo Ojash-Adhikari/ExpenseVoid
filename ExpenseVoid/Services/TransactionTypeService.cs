@@ -51,26 +51,26 @@ namespace ExpenseVoid.Services
         }
         public async Task EditTransactionTypeAsync(TransactionType transactionType)
         {
-            try
-            {
-                var transactionTypes = await LoadTransactionTypesAsync();
-                var exisitingTransactionTypes = transactionTypes.FirstOrDefault(u => u.TypeID == transactionType.TypeID);
-                if (exisitingTransactionTypes != null) 
-                { 
-                    exisitingTransactionTypes.Name = transactionType.Name;
+            //try
+            //{
+            //    var transactionTypes = await LoadTransactionTypesAsync();
+            //    var exisitingTransactionTypes = transactionTypes.FirstOrDefault(u => u.TypeID == transactionType.TypeID);
+            //    if (exisitingTransactionTypes != null) 
+            //    { 
+            //        exisitingTransactionTypes.Name = transactionType.Name;
 
-                    await SaveTransactionTypesAsync(transactionTypes);
-                }
-                else
-                {
-                    throw new Exception("Target Not Found");
-                }
+            //        await SaveTransactionTypesAsync(transactionTypes);
+            //    }
+            //    else
+            //    {
+            //        throw new Exception("Target Not Found");
+            //    }
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error Editing Target {ex.Message}");
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine($"Error Editing Target {ex.Message}");
+            //}
         }
 
         public async Task<List<TransactionType>> LoadTransactionTypesAsync()

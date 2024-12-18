@@ -1,6 +1,216 @@
-﻿@page "/"
-<h3>Home</h3>
+﻿@* Directive statement Import *@
+@using Microsoft.JSInterop
+
+@* Dependency Injection *@
+@inject IJSRuntime JSRuntime
+@page "/"
+
+@* CSS link *@
+<link rel="stylesheet" href="css/Vanta.css" />
+<link rel="stylesheet" href="css/HomeAddon.css" />
+
+@* JavaScript Imports *@
+<script src="js/Vanta.js"></script>
+<script src="js/HomeAddon.js"></script>
+
+ @* <body>
+     <!-- Background Container -->
+     <div id="vanta-bg"></div>
+
+     <!-- Content Layer -->
+     <div>
+         <!-- Main Content Section -->
+     </div>
+ </body> *@
+
+<body>
+    <!-- Header with navigation -->
+    <header>
+        <nav>
+            <div class="logo">Expense<span>Void</span></div>
+            <div class="menu-icon" id="menu-icon" aria-label="Toggle navigation menu" role="button" tabindex="0">
+                <span class="nav-icon"></span>
+            </div>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/About">About</a></li>
+                <li><a href="/Features">Features</a></li>
+                <li><a href="/Login" class="pushable2">Login</a></li>
+                <li><a href="/Registration" class="pushable2">Register</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main content -->
+    <main>
+        <!-- Hero Section -->
+        <section id="introduction" class="hero-section">
+            <div class="hero-overlay"></div>
+            <div class="hero-content container">
+                <h1>Welcome to ExpenseVoid</h1>
+                <p class="subheading">Your ultimate tool for managing expenses, debts, and income sources efficiently. Gain control over your finances today.</p>
+                <a href="#features" class="btn">Learn More</a>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="features-section section-container pattern-section">
+            <div class="container section-flex">
+                <div class="text-content">
+                    <h2>Key Features of ExpenseVoid</h2>
+                    <p>ExpenseVoid is designed to simplify personal finance management. With powerful tools to track your expenses, monitor income sources, and manage debts, you can make informed financial decisions.</p>
+                </div>
+                <div class="graphic-content">
+                    <!-- Feature Graphic -->
+                    <img src="https://picsum.photos/id/1005/1920/700" alt="Expense Management Graphic">
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Expense Tracker Section -->
+        <section id="tracker" class="expense-tracker-section section-container">
+            <div class="container section-flex">
+                <div class="text-content">
+                    <h2>Interactive Expense Tracker</h2>
+                    <p>Log your daily expenses, categorize them, and monitor your spending habits over time. Use intuitive graphs and reports to stay on top of your finances.</p>
+                        
+                </div>
+                <div class="graphic-content">
+                    <!-- Placeholder image or additional graphic content -->
+                    <img src="https://picsum.photos/id/1011/1920/700" alt="Expense Tracker Graphic">
+                </div>
+            </div>
+        </section>
+
+        <!-- Sources and Debts Section -->
+        <section id="sources" class="sources-debts-section section-container pattern-section">
+            <div class="container">
+                <h2>Track Sources and Debts</h2>
+                <p>Easily manage your income sources and keep an eye on your debts. Gain a clear picture of your financial health and stay organized.</p>
+                <div class="source-debt-cards">
+                    <div class="source-debt-card">
+                        <h3>Income Sources</h3>
+                        <p>Monitor multiple income streams and understand how they contribute to your financial goals.</p>
+                    </div>
+                    <div class="source-debt-card">
+                        <h3>Debt Management</h3>
+                        <p>Track outstanding debts and plan your repayments effectively to reduce financial stress.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Financial Tips Section -->
+        <section id="tips" class="financial-tips-section section-container pattern-section">
+            <div class="container">
+                <h2>Financial Wellness Tips</h2>
+                <p>Explore expert tips to help you save more, spend wisely, and achieve financial independence with ExpenseVoid.</p>
+                <div class="tips-examples">
+                    <div class="tips-example">
+                        <h3>Budget Planning</h3>
+                        <p>Create a realistic budget and stick to it to achieve your financial goals faster.</p>
+                    </div>
+                    <div class="tips-example">
+                        <h3>Emergency Funds</h3>
+                        <p>Save for unexpected expenses by setting aside a small amount from each paycheck.</p>
+                    </div>
+                    <div class="tips-example">
+                        <h3>Debt Reduction</h3>
+                        <p>Focus on paying off high-interest debts first to save money over time.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Newsletter Section -->
+        <section class="newsletter-section section-container pattern-section">
+            <div class="container">
+                <h2>Stay Updated</h2>
+                <p>Subscribe to our newsletter to receive financial tips, product updates, and exclusive insights on expense management.</p>
+                <form class="newsletter-form">
+                    <input type="email" name="email" placeholder="Your email address">
+                    <button type="submit" class="pushable1">
+                        <span class="front1">
+                            Subscribe
+                        </span>
+                    </button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Enhanced Footer -->
+    <footer id="contact">
+        <div class="footer-container">
+            <div class="footer-section about">
+                <h2>About ExpenseVoid</h2>
+                <p>ExpenseVoid is your trusted partner in managing personal finances. With an intuitive interface and powerful features, we help you take control of your financial future.</p>
+            </div>
+            <div class="footer-section links">
+                <h2>Quick Links</h2>
+                <ul>
+                    <li><a href="#introduction">Home</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#tracker">Expense Tracker</a></li>
+                    <li><a href="#sources">Sources & Debts</a></li>
+                    <li><a href="#tips">Financial Tips</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section contact-form">
+                <h2>Contact Us</h2>
+                <form action="#" method="post">
+                    <input type="email" name="email" placeholder="Your email address">
+                    <textarea name="message" rows="4" placeholder="Your message"></textarea>
+                    <button type="submit" class="pushable1"><span class="front1">Send</span> </button>
+                </form>
+            </div>
+            <div class="footer-section social-media">
+                <h2>Follow Us</h2>
+                <ul class="social-icons">
+                    <li><a href="#"><img src="https://img.icons8.com/ios-filled/24/ffffff/facebook--v1.png" alt="Facebook"></a></li>
+                    <li><a href="#"><img src="https://img.icons8.com/ios-filled/24/ffffff/twitter.png" alt="Twitter"></a></li>
+                    <li><a href="#"><img src="https://img.icons8.com/ios-filled/24/ffffff/instagram-new.png" alt="Instagram"></a></li>
+                    <li><a href="#"><img src="https://img.icons8.com/ios-filled/24/ffffff/linkedin.png" alt="LinkedIn"></a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 ExpenseVoid | Designed for smarter expense management</p>
+        </div>
+    </footer>
+
+</body>
+
 
 @code {
+    private bool vantaInitialized;
 
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !vantaInitialized)
+        {
+            try
+            {
+                vantaInitialized = true;
+
+
+                
+                // Ensure scripts are loaded
+                await JSRuntime.InvokeVoidAsync("loadVantaScripts");
+
+                // Initialize Vanta.js
+                await JSRuntime.InvokeVoidAsync("initializeVanta");
+
+
+                // await JSRuntime.InvokeVoidAsync("loadSidebarJS");
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error initializing Vanta.js: {ex.Message}");
+            }
+        }
+    }
 }

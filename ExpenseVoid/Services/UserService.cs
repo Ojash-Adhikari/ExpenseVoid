@@ -151,6 +151,7 @@ namespace ExpenseVoid.Services
                     existingUser.PermanentAddress = updatedUser.PermanentAddress;
                     existingUser.TemporaryAddress = updatedUser.TemporaryAddress;
                     existingUser.Currency = updatedUser.Currency;
+                    existingUser.Balance = updatedUser.Balance;
                     existingUser.Phone = updatedUser.Phone;
                     existingUser.Gender = updatedUser.Gender;
                     // Add other fields to update as needed
@@ -169,6 +170,8 @@ namespace ExpenseVoid.Services
                 throw;
             }
         }
+
+
 
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using ExpenseVoid.Services;
 using ExpenseVoid.Provider;
+using Microcharts.Maui;
 
 namespace ExpenseVoid
 {
@@ -12,6 +13,7 @@ namespace ExpenseVoid
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseMicrocharts()
                 .ConfigureFonts(fonts =>
                 {
                     // Custom Font

@@ -16,6 +16,7 @@ namespace ExpenseVoid.Models
         public string? PermanentAddress { get; set; }
         public string? TemporaryAddress { get; set; }
         public Currency? Currency { get; set; }
+        public Double Balance { get; set; }
         public string? Phone { get; set; }
         public string? Email { get; set; }
         public string? Password { get; set; }
