@@ -1,8 +1,11 @@
 ﻿using ExpenseVoid.Interface;
 using Microsoft.Extensions.Logging;
 using ExpenseVoid.Services;
+using Microsoft.Maui.Storage;
 using ExpenseVoid.Provider;
 using Microcharts.Maui;
+using ExpenseVoid.Persistence;
+using ExpenseVoid.Helper;
 
 namespace ExpenseVoid
 {
@@ -29,14 +32,22 @@ namespace ExpenseVoid
             builder.Services.AddTransient<ITag, TagService>();
             builder.Services.AddTransient<ITransaction, TransactionService>();
             builder.Services.AddTransient<ITransactionType, TransactionTypeService>();
+            builder.Services.AddTransient<IGroup, GroupService>();
+            builder.Services.AddTransient<IProfile, ProfileService>();
 
             // Provider Services
             builder.Services.AddSingleton<ICurrency, TcbExchangeProvider>();
             builder.Services.AddSingleton<ICurrency, EcbExchangeProvider>();
 
+            //Local Session Services
+            builder.Services.AddSingleton<PreferencesStoreClone>();
+
+            //Helper Services
+            builder.Services.AddTransient<EmailToUserMap>();
+
 
 #if DEBUG
-    		builder.Services.AddBlazorWebViewDeveloperTools();
+            builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
 #endif
 

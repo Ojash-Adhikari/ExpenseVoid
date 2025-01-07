@@ -9,6 +9,7 @@ namespace ExpenseVoid.Models
     public class Tag
     {
         public Guid TagId { get; set; } = Guid.NewGuid();
+        public User? User { get; set; }
         public string? TagName { get; set; }
         public string? TagColor { get; set; }
     }

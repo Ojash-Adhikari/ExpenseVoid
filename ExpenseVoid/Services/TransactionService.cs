@@ -228,6 +228,20 @@ namespace ExpenseVoid.Services
             }
         }
 
+        public async Task<List<Transaction>> GetTransactionsByUserIdAsync(Guid userId)
+        {
+            try
+            {
+                var transactions = await LoadTransactionAsync();
+                return transactions.Where(t => t.User?.UserID == userId).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching transactions for user ID {userId}: {ex.Message}");
+                throw;
+            }
+        }
+
 
 
     }

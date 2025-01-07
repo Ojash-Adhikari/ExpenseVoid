@@ -4,6 +4,7 @@
 @using ExpenseVoid.Models
 @using ExpenseVoid.Services
 @using ExpenseVoid.Interface
+@using ExpenseVoid.Persistence
 @using Microsoft.JSInterop
 
 @* Dependency Injection *@
@@ -17,7 +18,7 @@
 
 @* JavaScript Links *@
 <script src="js/Account.js"></script>
- @* <script src="js/CustomToasts.js"></script> *@
+<script src="js/CustomToasts.js"></script> 
 
 <body class="bg-gray-200">
     <div class="bg-black before:animate-pulse before:bg-gradient-to-b before:from-gray-900 overflow-hidden before:via-[#00FF00] before:to-gray-900 before:absolute">
@@ -53,49 +54,48 @@
                             <span class="front1">Login</span>
                         </button>
                     </form>
-                    @if (errorMessage != null)
-                    {
-                        <p>@errorMessage</p>
-                    }
                 </div>
             </div>
         </div>
     </div>
 </body>
-@if (errorMessage != null)
-{
-    
-    @*   <section id="toast" class="error">
-          <div id="icon-wrapper">
-              <div id="icon"></div>
-          </div>
-          <div id="toast-message">
-              <h4>Login Error:</h4>
-              <p>@errorMessage</p>
-          </div>
-          <button id="toast-close"></button>
-          <div id="timer"></div>
-      </section> *@
-}
 
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <ToastALL ErrorMessage="@errorMessage" />
+}
+ 
 
 @code {
     private string email = string.Empty;
     private string password = string.Empty;
-    private string? errorMessage;
-
-
+    public string? errorMessage;
+    [Inject]
+    private PreferencesStoreClone? Storage { get; set; }
+    private bool toastInitialized = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        // if (!toastInitialized && !string.IsNullOrEmpty(errorMessage))
+        // {
+        //     try
+        //     {
+        //         await JSRuntime.InvokeVoidAsync("initializeToastified");
+        //         toastInitialized = true;
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         Console.WriteLine($"Error initializing Toastified: {ex.Message}");
+        //     }
+        // }
         if (firstRender)
         {
             try
             {
 
                 await JSRuntime.InvokeVoidAsync("loadAccountJS");
-                await JSRuntime.InvokeVoidAsync("initializeToasts");
-
+                
+                
             }
             catch (Exception ex)
             {
@@ -127,6 +127,7 @@
                 }
                 else
                 {
+                    Storage.Set("Email", email);
                     Navigation.NavigateTo("/Dashboard");
                     await JSRuntime.InvokeVoidAsync("eval", "window.location.reload()");
                     errorMessage = string.Empty;

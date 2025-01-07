@@ -1,0 +1,38 @@
+﻿@inject IJSRuntime JSRuntime
+<link rel="stylesheet" href="css/Toast.css" />
+<script src="js/CustomToasts.js"></script>
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <section id="toast" class="error">
+        <div id="icon-wrapper">
+            <div id="icon"></div>
+        </div>
+        <div id="toast-message">
+            <h4>Login Error:</h4>
+            <p>@ErrorMessage</p>
+        </div>
+        <button id="toast-close"></button>
+        <div id="timer"></div>
+    </section>
+}
+@code {
+    [Parameter]
+    public string? ErrorMessage { get; set; }
+    private bool toastInitialized = false;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!toastInitialized && !string.IsNullOrEmpty(ErrorMessage))
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("initializeToastified");
+                toastInitialized = true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error initializing Toastified: {ex.Message}");
+            }
+        }
+    }
+}

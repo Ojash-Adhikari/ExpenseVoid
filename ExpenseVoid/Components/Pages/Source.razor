@@ -1,5 +1,158 @@
-﻿<h3>Source</h3>
+﻿@* Directive statement Import *@
+@using Microsoft.JSInterop
+@using ExpenseVoid.Models
+@using ExpenseVoid.Services
+@using ExpenseVoid.Interface
+
+@* Dependency Injection *@
+@inject IJSRuntime JSRuntime
+@inject ISource sourceService
+@inject ITransactionType transactionTypeService
+@page "/Source"
+
+@* CSS link *@
+<link rel="stylesheet" href="css/sidebar.css" />
+<link rel="stylesheet" href="css/Vanta.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+@* JavaScript Imports *@
+<script src="js/sidebar.js"></script>
+<script src="js/Vanta.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<h3>Source</h3>
+
+<body class="bg-gray-900 text-white">
+    <div id="vanta-bg" class="flex flex-col md:flex-row gap-4 p-4">
+        <!-- Sidebar / Navigation Menu -->
+        <div>
+            <NavMenu />
+        </div>
+        <div>
+            <div class="bg-gray-800 p-4 rounded shadow-lg max-w-lg">
+                <EditForm Model="@newSource" OnValidSubmit="HandleAddSource">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <!-- Source Name -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Source Name</label>
+                        <InputText @bind-Value="newSource.Name" class="w-full p-2 rounded bg-gray-700" />
+                    </div>
+
+                    <!-- Source Description -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Description</label>
+                        <InputTextArea @bind-Value="newSource.Description" class="w-full p-2 rounded bg-gray-700" />
+                    </div>
+
+                    <!-- Transaction Type -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Transaction Type</label>
+                        <InputSelect @bind-Value="transactionType" class="w-full p-2 rounded bg-gray-700">
+                            <option value="">Select Type</option>
+                            <option value="Credit">Credit</option>
+                            <option value="Debit">Debit</option>
+                        </InputSelect>
+                    </div>
+
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Add Source</button>
+                </EditForm>
+
+                @if (isSuccess)
+                {
+                    <p class="text-green-500 mt-4">Source added successfully!</p>
+                }
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <p class="text-red-500 mt-4">@errorMessage</p>
+                }
+            </div>
+        </div>
+    </div>
+</body>
 
 @code {
+    private Models.Source newSource = new();
+    private List<TransactionType> transactionTypes = new();
+    private string selectedTransactionType = "";
+    private bool isSuccess = false;
+    private string errorMessage = "";
+    private bool vantaInitialized;
+    private string transactionType;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Correct service to load transaction types
+            transactionTypes = await transactionTypeService.LoadTransactionTypesAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading transaction types: {ex.Message}");
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !vantaInitialized)
+        {
+            try
+            {
+                vantaInitialized = true;
+
+                // Ensure scripts are loaded
+                await JSRuntime.InvokeVoidAsync("loadVantaScripts");
+
+                // Initialize Vanta.js
+                await JSRuntime.InvokeVoidAsync("initializeVanta");
+                await JSRuntime.InvokeVoidAsync("initializeCharts");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error initializing Vanta.js: {ex.Message}");
+            }
+        }
+    }
+    private async Task HandleAddSource()
+    {
+        try
+        {
+            if (newSource.TransactionType == null)
+            {
+                Console.WriteLine("No type found");
+            }
+
+            // Map transaction type
+            if (transactionType == "Credit")
+            {
+                
+                newSource.TransactionType = transactionType;
+
+            }
+            else if (transactionType == "Debit")
+            {
+                newSource.TransactionType = transactionType;
+
+            }
+            
+
+            // Save the new source using the service
+            await sourceService.SaveSourceAsync(newSource);
+
+            // Show success message and reset the form
+            isSuccess = true;
+            errorMessage = "";
+            newSource = new Models.Source();
+            selectedTransactionType = "";
+        }
+        catch (Exception ex)
+        {
+            isSuccess = false;
+            errorMessage = $"Error adding source: {ex.Message}";
+        }
+    }
+
 
 }

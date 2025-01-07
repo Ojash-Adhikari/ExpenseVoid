@@ -1,5 +1,45 @@
-﻿<h3>Debt</h3>
+﻿@page "/Debt"
+
+@* Directive statement Import *@
+@using Microsoft.JSInterop
+@using ExpenseVoid.Models
+@using ExpenseVoid.Services
+@using ExpenseVoid.Interface
+@using ExpenseVoid.Persistence
+
+@* Dependency Injection *@
+@inject IJSRuntime JSRuntime
+
+<h3>Debt</h3>
+
+<p>TestVariableBool: @TestVariableBool</p>
+<p>TestVariable: @TestVariable </p>
 
 @code {
+    [Inject]
+    private PreferencesStoreClone Storage { get; set; }
 
+    bool TestVariableBool;
+    string TestVariable;
+
+    protected override void OnInitialized()
+    {
+        // Check if "TestVariable" exists in storage
+        TestVariableBool = Storage.Exists("TestVariable");
+
+        if (TestVariableBool)
+        {
+            Console.WriteLine("Variable exists in storage");
+            TestVariable = Storage.Get<string>("TestVariable");
+        }
+        else
+        {
+            Console.WriteLine("Variable does not exist in storage");
+            TestVariable = "Default Value"; // Define a default value
+            Storage.Set("TestVariable", TestVariable); // Save the default value to storage
+            Console.WriteLine($"Saved default value: {TestVariable}");
+        }
+
+        Console.WriteLine(TestVariable);
+    }
 }

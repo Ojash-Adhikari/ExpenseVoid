@@ -3,10 +3,14 @@
 @using ExpenseVoid.Models
 @using ExpenseVoid.Services
 @using ExpenseVoid.Interface
+@using ExpenseVoid.Helper
+@using ExpenseVoid.Persistence
 
 @* Dependency Injection *@
 @inject IJSRuntime JSRuntime
 @inject ITag tagService
+@inject EmailToUserMap EmailToUserMap
+@inject PreferencesStoreClone Storage
 @page "/Tags"
 
 @* CSS link *@
@@ -34,6 +38,12 @@
                     <DataAnnotationsValidator />
                     <ValidationSummary />
 
+                    <!-- User -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">User</label>
+                        <p class="text-gray-300">@currentUser?.UserName</p>
+                    </div>
+
                     <!-- Tag Name -->
                     <div class="mb-4">
                         <label class="block text-sm font-medium mb-2">Tag Name</label>
@@ -43,10 +53,12 @@
                     <!-- Tag Color -->
                     <div class="mb-4">
                         <label class="block text-sm font-medium mb-2">Tag Color</label>
-                        <InputText @bind-Value="newTag.TagColor" placeholder="#FF5733" class="w-full p-2 rounded bg-gray-700" />
+                        <div class="flex items-center gap-2">
+                            <InputText @bind-Value="newTag.TagColor" placeholder="#FF5733" class="w-full p-2 rounded bg-gray-700" />
+                            <input type="color" @bind="newTag.TagColor" class="w-10 h-10 p-0 rounded-full border-none" />
+                        </div>
                         <small class="text-gray-400">Enter a valid color code (e.g., #FF5733).</small>
                     </div>
-
 
                     <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Add Tag</button>
                 </EditForm>
@@ -64,12 +76,14 @@
     </div>
 </body>
 
+
 @code {
     private Tag newTag = new();
     private string selectedTransactionType;
     private bool isSuccess = false;
     private string errorMessage = "";
     private bool vantaInitialized;
+    private User? currentUser;
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -81,6 +95,11 @@
                 vantaInitialized = true;
 
 
+                currentUser = await EmailToUserMap.GetUserByEmailAsync(Storage);
+                if (currentUser != null)
+                {
+                    newTag.User = currentUser; // Assign the user to the new tag
+                }
 
                 // Ensure scripts are loaded
                 await JSRuntime.InvokeVoidAsync("loadVantaScripts");

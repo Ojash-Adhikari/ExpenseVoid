@@ -11,7 +11,7 @@ namespace ExpenseVoid.Services
 {
     public class SourceService : ISource
     {
-        private readonly string sourceFilePath = Path.Combine(AppContext.BaseDirectory,"Tags&Source","Source.json");
+        private readonly string sourceFilePath = Path.Combine(AppContext.BaseDirectory,"ExpenseVoid","Tags&Source","Source.json");
         public async Task SaveSourceAsync(Source source)
         {
             try

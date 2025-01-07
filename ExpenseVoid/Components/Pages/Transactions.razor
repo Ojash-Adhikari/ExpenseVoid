@@ -3,12 +3,16 @@
 @using ExpenseVoid.Models
 @using ExpenseVoid.Services
 @using ExpenseVoid.Interface
+@using ExpenseVoid.Helper
+@using ExpenseVoid.Persistence
 
 @* Dependency Injection *@
 @inject IJSRuntime JSRuntime
 @inject ITransaction transactionService
 @inject IUser userService
 @inject ITag tagService
+@inject EmailToUserMap EmailToUserMap
+@inject PreferencesStoreClone Storage
 @page "/Transactions"
 
 @* CSS link *@
@@ -23,99 +27,190 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <h3>Transactions</h3>
 
+<style>
+    .card {
+        width: 350px;
+        background-color: rgba(24, 24, 27, 0.8);
+        border-radius: 1rem;
+        margin-top: 20px;
+        margin-left: 20px;
+    }
+
+    .semi-transparent {
+        background-color: rgba(24, 24, 27, 0.6);
+    }
+</style>
+
 <body class="bg-gray-900 text-white">
     <div id="vanta-bg" class="flex flex-col md:flex-row gap-4 p-4">
         <!-- Sidebar / Navigation Menu -->
         <div>
-            <NavMenu />
-        </div>
-        <div>
-            <div class="bg-gray-800 p-4 rounded shadow-lg max-w-lg">
-                <EditForm Model="@transaction" OnValidSubmit="HandleTransactionSubmit">
-                    <DataAnnotationsValidator />
-                    <ValidationSummary />
-
-                    <!-- User Dropdown -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium mb-2">User</label>
-                        <InputSelect @bind-Value="selectedUserId" class="w-full p-2 rounded bg-gray-700">
-                            <option value="">Select a User</option>
-                            @foreach (var user in users)
-                            {
-                                <option value="@user.UserID">@user.UserName</option>
-                            }
-                        </InputSelect>
+            <div><NavMenu /></div>
+            <div>
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="card p-6">
+                            <h2 class="text-sm font-medium mb-1">
+                                <i class="fas fa-fire-flame-curved text-orange-500 mr-2"></i>Balance
+                            </h2>
+                            <div class="text-2xl font-semibold calories-value">@currentUser?.Balance</div>
+                        </div>
                     </div>
-
-                    <!-- Transaction Type -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium mb-2">Transaction Type</label>
-                        <InputSelect @bind-Value="transactionType" class="w-full p-2 rounded bg-gray-700">
-                            <option value="">Select Type</option>
-                            <option value="Credit">Credit</option>
-                            <option value="Debit">Debit</option>
-                        </InputSelect>
-                    </div>
-
-                    <!-- Tag Dropdown -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium mb-2">Tag</label>
-                        <InputSelect @bind-Value="selectedTagId" class="w-full p-2 rounded bg-gray-700">
-                            <option value="">Select a Tag</option>
-                            @foreach (var tag in tags)
-                            {
-                                <option value="@tag.TagId">@tag.TagName</option>
-                            }
-                        </InputSelect>
-                    </div>
-
-                    <!-- Amount -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium mb-2">Amount</label>
-                        <InputNumber @bind-Value="transaction.TransactionAmount" class="w-full p-2 rounded bg-gray-700" />
-                    </div>
-
-                    <!-- Remarks -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium mb-2">Remarks</label>
-                        <InputTextArea @bind-Value="transaction.TransactionRemarks" class="w-full p-2 rounded bg-gray-700" />
-                    </div>
-
-                    <!-- Transaction Date -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium mb-2">Transaction Date</label>
-                        <InputDate @bind-Value="transaction.TransactionDate" class="w-full p-2 rounded bg-gray-700" />
-                    </div>
-
-                    <!-- Transaction Color -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium mb-2">Transaction Color</label>
-                        <InputText @bind-Value="transaction.TransactionColor" class="w-full p-2 rounded bg-gray-700" />
-                    </div>
-
-                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Add Transaction</button>
-                </EditForm>
-
-                @if (isSuccess)
-                {
-                    <p class="text-green-500 mt-4">Transaction added successfully!</p>
-                }
-                @if (!string.IsNullOrEmpty(errorMessage))
-                {
-                    <p class="text-red-500 mt-4">@errorMessage</p>
-                }
+                </div>
             </div>
         </div>
 
+        <!-- Main Content -->
+        <div class="flex flex-col gap-4">
+            <!-- Filter & Table Section -->
+            <div class="semi-transparent p-4 rounded-lg shadow-lg">
+                <!-- Filters -->
+                <div class="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Search Transaction Name</label>
+                        <input type="text" @bind="searchTerm" class="w-full p-2 rounded bg-gray-700" placeholder="Enter transaction name..." />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Sort by Amount</label>
+                        <select @bind="amountSort" class="w-full p-2 rounded bg-gray-700">
+                            <option value="">Select...</option>
+                            <option value="highest">Highest</option>
+                            <option value="lowest">Lowest</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Filter by Date</label>
+                        <div class="flex gap-2">
+                            <input type="date" @bind="startDate" class="w-1/2 p-2 rounded bg-gray-700" />
+                            <input type="date" @bind="endDate" class="w-1/2 p-2 rounded bg-gray-700" />
+                            <button type="button" class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center" @onclick="ClearDateFilters">
+                                <img src="https://static-00.iconduck.com/assets.00/filter-remove-icon-945x1024-a4srzflx.png" alt="Clear Filter" class="w-6 h-6" />
+                            </button>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <!-- Filtered Transactions Table -->
+                <div>
+                    <table class="table-auto w-full text-left bg-gray-800 rounded-lg shadow-lg">
+                        <thead>
+                            <tr class="bg-gray-700 text-gray-300">
+                                <th class="px-4 py-2">#</th>
+                                <th class="px-4 py-2">Transaction Name</th>
+                                <th class="px-4 py-2">Amount</th>
+                                <th class="px-4 py-2">Type</th>
+                                <th class="px-4 py-2">Tag</th>
+                                <th class="px-4 py-2">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (filteredTransactions.Any())
+                            {
+                                @foreach (var transaction in filteredTransactions.Select((t, index) => new { Transaction = t, Index = index + 1 }))
+                                {
+                                    <tr class="border-b border-gray-700 hover:bg-gray-700">
+                                        <td class="px-4 py-2">@transaction.Index</td>
+                                        <td class="px-4 py-2" style="color: @transaction.Transaction.TransactionColor">@transaction.Transaction.TransactionName</td>
+                                        <td class="px-4 py-2">@transaction.Transaction.TransactionAmount</td>
+                                        <td class="px-4 py-2">
+                                            @(transaction.Transaction.TransactionType?.Credit != null ? "Credit" : "Debit")
+                                        </td>
+                                        <td class="px-4 py-2">@transaction.Transaction.Tag?.TagName</td>
+                                        <td class="px-4 py-2">@transaction.Transaction.TransactionDate?.ToString("yyyy-MM-dd")</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td class="px-4 py-2 text-center text-gray-400" colspan="6">No transactions match the filters.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Form Section -->
+            <div class="semi-transparent p-4 rounded-lg shadow-lg">
+                <div class="p-4 rounded shadow-lg">
+                    <EditForm Model="@transaction" OnValidSubmit="HandleTransactionSubmit">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Transaction Name</label>
+                                <InputText @bind-Value="transaction.TransactionName" class="w-full p-2 rounded bg-gray-700" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Transaction Type</label>
+                                <InputSelect @bind-Value="transactionType" class="w-full p-2 rounded bg-gray-700">
+                                    <option value="">Select Type</option>
+                                    <option value="Credit">Credit</option>
+                                    <option value="Debit">Debit</option>
+                                </InputSelect>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Tag</label>
+                                <InputSelect @bind-Value="selectedTagId" class="w-full p-2 rounded bg-gray-700">
+                                    <option value="">Select a Tag</option>
+                                    @foreach (var tag in tags)
+                                    {
+                                        <option value="@tag.TagId">@tag.TagName</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Amount</label>
+                                <InputNumber @bind-Value="transaction.TransactionAmount" class="w-full p-2 rounded bg-gray-700" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Remarks</label>
+                                <InputTextArea @bind-Value="transaction.TransactionRemarks" class="w-full rounded bg-gray-700" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Transaction Date</label>
+                                <InputDate @bind-Value="transaction.TransactionDate" class="w-full p-2 rounded bg-gray-700" />
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium mb-2">Transaction Color</label>
+                                <input type="color"
+                                       @bind="transaction.TransactionColor"
+                                       class="w-full p-2 rounded bg-gray-700"
+                                       style="height: 40px;" />
+                            </div>
+
+                        </div>
+                        <button type="submit" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Add Transaction</button>
+                    </EditForm>
+
+
+                    @if (isSuccess)
+                    {
+                        <p class="text-green-500 mt-4">Transaction added successfully!</p>
+                    }
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <p class="text-red-500 mt-4">@errorMessage</p>
+                    }
+                </div>
+            </div>
+            
+        </div>
     </div>
 </body>
 
+
 @code {
     private bool vantaInitialized;
+    private User? currentUser;
     private Transaction transaction = new Transaction
         {
             User = new User() // Ensure User is initialized
         };
+    private List<Transaction> currentUserTransactions = new();
     private List<Tag> tags = new();
     private Guid selectedTagId;
     private string transactionType;
@@ -123,14 +218,53 @@
     private string errorMessage;
     private Guid selectedUserId; // To track selected user
     private List<User> users = new List<User>(); // List of users
+    private string searchTerm = string.Empty;
+    private string amountSort = string.Empty;
+    private DateTime? startDate = null;
+    private DateTime? endDate = null;
+
+    private IEnumerable<Transaction> filteredTransactions
+    {
+        get
+        {
+            var transactions = currentUserTransactions
+                .Where(t => string.IsNullOrEmpty(searchTerm) ||
+                            t.TransactionName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .Where(t => !startDate.HasValue || t.TransactionDate >= startDate)
+                .Where(t => !endDate.HasValue || t.TransactionDate <= endDate);
+
+            return amountSort switch
+            {
+                "highest" => transactions.OrderByDescending(t => t.TransactionAmount),
+                "lowest" => transactions.OrderBy(t => t.TransactionAmount),
+                _ => transactions
+            };
+        }
+    }
+
+    private void ClearDateFilters()
+    {
+        startDate = null;
+        endDate = null;
+    }
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             // Fetch all users
-            users = await userService.LoadUsersAsync();
+            // users = await userService.LoadUsersAsync();
+            currentUser = await EmailToUserMap.GetUserByEmailAsync(Storage);
             tags = await tagService.LoadTagsAsync();
+            if (currentUser != null)
+            {
+                currentUserTransactions = await transactionService.GetTransactionsByUserIdAsync(currentUser.UserID);
+            }
+            else
+            {
+                errorMessage = " User not found.";
+                return;
+            }
         }
         catch (Exception ex)
         {
@@ -168,8 +302,8 @@
     {
         try
         {
-            // Set the selected user and tag
-            var user = users.FirstOrDefault(u => u.UserID.ToString() == selectedUserId.ToString());
+            // Use current user directly
+            var user = currentUser;
             var tag = tags.FirstOrDefault(t => t.TagId.ToString() == selectedTagId.ToString());
 
             if (user == null)
@@ -189,12 +323,10 @@
             if (transactionType == "Credit")
             {
                 transaction.TransactionType.Credit = transaction.TransactionAmount;
-                
             }
             else if (transactionType == "Debit")
             {
                 transaction.TransactionType.Debit = transaction.TransactionAmount;
-                
             }
 
             // Process the transaction
@@ -210,7 +342,6 @@
                     User = new User(),
                     TransactionType = new TransactionType()
                 };
-            selectedUserId = Guid.Empty;
             selectedTagId = Guid.Empty;
             transactionType = null;
         }
@@ -220,4 +351,6 @@
             isSuccess = false;
         }
     }
+
+
 }

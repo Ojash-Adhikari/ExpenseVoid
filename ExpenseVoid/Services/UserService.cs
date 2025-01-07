@@ -46,12 +46,22 @@ namespace ExpenseVoid.Services
         {
             try
             {
+                var users = await LoadUsersAsync();
+
+                // Check if the email already exists
+                if (users.Any(u => u.Email.Equals(user.Email, StringComparison.OrdinalIgnoreCase)))
+                {
+                    throw new Exception($"A user with the email '{user.Email}' already exists.");
+                }
+
                 if (user.UserID == Guid.Empty)
                 {
                     user.UserID = Guid.NewGuid();
                 }
+
+                // Hash the password before saving
                 user.Password = HashPassword(user.Password);
-                var users = await LoadUsersAsync();
+
                 users.Add(user);
                 await SaveUsersAsync(users);
             }
@@ -61,6 +71,7 @@ namespace ExpenseVoid.Services
                 throw;
             }
         }
+
 
         public async Task RemoveUserAsync(User user)
         {

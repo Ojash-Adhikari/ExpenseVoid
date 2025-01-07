@@ -1,8 +1,15 @@
 ﻿@* Directive statement Import *@
 @using Microsoft.JSInterop
+@using ExpenseVoid.Persistence
+@using ExpenseVoid.Models
+@using ExpenseVoid.Services
+@using ExpenseVoid.Interface
+@using ExpenseVoid.Helper
 
 @* Dependency Injection *@
 @inject IJSRuntime JSRuntime
+@inject EmailToUserMap EmailToUserMap
+@inject PreferencesStoreClone Storage
 @page "/Dashboard"
 
 @* CSS link *@
@@ -188,7 +195,14 @@
                 </div>
             </div>
             <div class="card p-6 col-span-2">
-
+                <div>
+                    <p>@currentUser</p>
+                </div>
+                <div>
+                    <button type="submit" class="pushable1">
+                        <span class="front1">Add Transaction</span>
+                    </button>
+                </div>
             </div>
 
             
@@ -219,7 +233,22 @@
 
 @code {
     private bool vantaInitialized;
+    private User? currentUser;
+    private bool isAvailable;
 
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await EmailToUserMap.GetUserByEmailAsync(Storage);
+
+        if (currentUser != null)
+        {
+            Console.WriteLine($"Welcome, {currentUser.FirstName}!");
+        }
+        else
+        {
+            Console.WriteLine("No user found or email is not set in storage.");
+        }
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

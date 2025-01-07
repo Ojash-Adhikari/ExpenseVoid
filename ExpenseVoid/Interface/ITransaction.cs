@@ -14,6 +14,10 @@ namespace ExpenseVoid.Interface
         Task EditTransactionAsync(Transaction transaction);
         Task<List<Transaction>> LoadTransactionAsync();
 
+        //Calculation 
         Task ProcessTransactionAsync(Transaction transaction);
+
+        //Listing Transactions
+        Task<List<Transaction>> GetTransactionsByUserIdAsync(Guid userId);
     }
 }

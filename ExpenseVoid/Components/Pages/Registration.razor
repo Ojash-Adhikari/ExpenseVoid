@@ -243,9 +243,28 @@
     {
         try
         {
-            if (string.IsNullOrEmpty(newUser.Email))
+            // Validate required fields before proceeding
+            if (string.IsNullOrEmpty(newUser.UserName) ||
+                string.IsNullOrEmpty(newUser.Email) ||
+                string.IsNullOrEmpty(newUser.FirstName) ||
+                string.IsNullOrEmpty(newUser.LastName) ||
+                string.IsNullOrEmpty(newUser.Password))
             {
-                errorMessage = "Please enter your email to receive the verification code.";
+                errorMessage = "Please fill out all required fields before generating the verification code.";
+                return;
+            }
+
+            if (newUser.Balance <= 0)
+            {
+                errorMessage = "Balance Cannot be less than or Equals to 0";
+                return;
+            }
+
+            // Check if the email already exists
+            var users = await userService.LoadUsersAsync();
+            if (users.Any(u => u.Email.Equals(newUser.Email, StringComparison.OrdinalIgnoreCase)))
+            {
+                errorMessage = $"A user with the email '{newUser.Email}' already exists.";
                 return;
             }
 
@@ -257,13 +276,15 @@
             await SendVerificationEmail(newUser.Email, generatedCode);
 
             isVerificationCodeSent = true;
-            errorMessage = null;
+            errorMessage = null; // Clear any previous error message
         }
         catch (Exception ex)
         {
             errorMessage = $"An error occurred while generating the verification code: {ex.Message}";
+            Console.WriteLine(errorMessage); // Log for debugging
         }
     }
+
     private async Task VerifyCode()
     {
         if (userEnteredCode == generatedCode)
@@ -361,7 +382,7 @@
     {
         try
         {
-            // Check if any required field is null or empty
+            // Validate required fields
             if (string.IsNullOrEmpty(newUser.UserName) ||
                 string.IsNullOrEmpty(newUser.Email) ||
                 string.IsNullOrEmpty(newUser.FirstName) ||
@@ -377,16 +398,26 @@
                 return;
             }
 
-            // The UserId will be generated automatically, so no need to check for duplicates manually here.
+            // Attempt to save the user
             await userService.SaveUserAsync(newUser);
 
+            // Clear form and error message upon successful save
             newUser = new User();
-            errorMessage = null; // Clear any previous error messages
+            errorMessage = null;
         }
         catch (Exception ex)
         {
-            errorMessage = $"An error occurred while adding the user: {ex.Message}";
-            Console.WriteLine(errorMessage); // Log for debugging
+           
+            if (ex.Message.Contains("already exists"))
+            {
+                errorMessage = ex.Message;
+            }
+            else
+            {
+                errorMessage = $"An error occurred while adding the user: {ex.Message}";
+            }
+
+            Console.WriteLine(errorMessage); 
         }
     }
 }

@@ -9,9 +9,9 @@ namespace ExpenseVoid.Interface
 {
     public interface ITag
     {
-        Task SaveTagAsync(Tag tag);
-        Task RemoveTagAsync(Tag tag);
-        Task EditTagAsync(Tag tag);
-        Task<List<Tag>> LoadTagsAsync();
+        Task SaveTagAsync(Tag tag); // Create
+        Task RemoveTagAsync(Tag tag); // Delete
+        Task EditTagAsync(Tag tag); // Update
+        Task<List<Tag>> LoadTagsAsync(); // Read
     }
 }
