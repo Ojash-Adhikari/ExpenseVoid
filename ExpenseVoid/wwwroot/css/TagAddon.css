@@ -1,0 +1,11 @@
+﻿.card {
+    width: 350px;
+    background-color: rgba(24, 24, 27, 0.8);
+    border-radius: 1rem;
+    margin-top: 20px;
+    margin-left: 20px;
+}
+
+.semi-transparent {
+    background-color: rgba(24, 24, 27, 0.6);
+}

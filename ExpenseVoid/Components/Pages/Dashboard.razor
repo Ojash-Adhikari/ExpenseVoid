@@ -26,31 +26,47 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
     let expensesChart;
-    function initializeCharts() {
+    async function initializeCharts() {
         const darkMode = {
             backgroundColor: '#18181b',
             gridColor: '#27272a',
             textColor: '#f0f5f3'
         };
+
+        // Fetch the JSON file
+        const transactions = await fetchTransactions();
+
+        // Filter and prepare data for Debit (Expenses) and Credit (Income)
+        const filteredTransactions = transactions.filter(t => t.TransactionType.Debit !== null || t.TransactionType.Credit !== null);
+        const labels = filteredTransactions.map(t =>
+            new Date(t.TransactionDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+        );
+        const debitData = filteredTransactions.map(t => t.TransactionType.Debit || 0); 
+        const creditData = filteredTransactions.map(t => t.TransactionType.Credit || 0); 
+
+        // Initialize the chart
         expensesChart = new Chart(document.getElementById('expensesChart'), {
             type: 'line',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-                datasets: [{
-                    label: 'Income',
-                    data: [5200, 5400, 5300, 5500, 5200, 5600, 5300],
-                    borderColor: '#3b82f6',
-                    tension: 0.4,
-                    borderWidth: 2,
-                    fill: false
-                }, {
-                    label: 'Expenses',
-                    data: [5000, 5300, 5100, 5200, 5400, 5300, 5100],
-                    borderColor: '#a855f7',
-                    tension: 0.4,
-                    borderWidth: 2,
-                    fill: false
-                }]
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Expenses',
+                        data: debitData,
+                        borderColor: '#a855f7',
+                        tension: 0.4,
+                        borderWidth: 2,
+                        fill: false
+                    },
+                    {
+                        label: 'Income',
+                        data: creditData,
+                        borderColor: '#3b82f6',
+                        tension: 0.4,
+                        borderWidth: 2,
+                        fill: false
+                    }
+                ]
             },
             options: {
                 responsive: true,
@@ -67,8 +83,14 @@
                     }
                 },
                 scales: {
-                    y: { display: false },
-                    x: { display: false }
+                    y: {
+                        display: true,
+                        grid: { color: darkMode.gridColor }
+                    },
+                    x: {
+                        display: true,
+                        grid: { color: darkMode.gridColor }
+                    }
                 }
             }
         });
@@ -93,8 +115,22 @@
             initializeCharts();
         });
     }
-    
-    
+    async function fetchTransactions() {
+        try {
+            const response = await fetch('ExpenseVoid/Transaction/Transaction.json');
+            if (!response.ok) {
+                throw new Error('Failed to load transactions JSON');
+            }
+            const transactions = await response.json();
+            return transactions;
+        } catch (error) {
+            console.error(error);
+            return [];
+        }
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        initializeCharts();
+    });
 </script>
 
 
@@ -194,7 +230,7 @@
                     <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 20$, Paid -> John</h2>
                 </div>
             </div>
-            <div class="card p-6 col-span-2">
+            <div class="card p-4 col-span-2">
                 <div>
                     <p>@currentUser</p>
                 </div>

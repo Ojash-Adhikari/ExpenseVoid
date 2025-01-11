@@ -332,6 +332,8 @@
             // Process the transaction
             await transactionService.ProcessTransactionAsync(transaction);
 
+            currentUserTransactions = await transactionService.GetTransactionsByUserIdAsync(currentUser.UserID);
+
             // Show success message
             isSuccess = true;
             errorMessage = null;

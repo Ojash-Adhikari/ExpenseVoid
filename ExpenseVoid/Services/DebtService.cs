@@ -11,7 +11,7 @@ namespace ExpenseVoid.Services
 {
     public class DebtService : IDebt
     {
-        private readonly string debtFilePath = Path.Combine(AppContext.BaseDirectory, "ExpeneVoid", "Debt", "Debt.json");
+        private readonly string debtFilePath = Path.Combine(AppContext.BaseDirectory, "ExpenseVoid", "Debt", "Debt.json");
         public async Task SaveDebtAsync(Debt debt)
         {
             try
@@ -130,6 +130,19 @@ namespace ExpenseVoid.Services
             }
         }
 
-  
+        public async Task<List<Debt>> GetDebtByUserIdAsync(Guid userId)
+        {
+            try
+            {
+                var debts = await LoadDebtAsync();
+                return debts.Where(d => d.User?.UserID == userId).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching Debt for user ID {userId}: {ex.Message}");
+                throw;
+            }
+        }
+
     }
 }

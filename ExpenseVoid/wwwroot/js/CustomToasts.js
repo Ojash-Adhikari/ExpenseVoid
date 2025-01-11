@@ -1,13 +1,4 @@
 function Toastified(toast, toastTimer, closeToastBtn) {
-    console.log("Toast element:", toast);
-    console.log("Timer element:", toastTimer);
-    console.log("Close button:", closeToastBtn);
-
-    if (!toast || !toastTimer || !closeToastBtn) {
-        console.error("One or more elements are missing.");
-        return;
-    }
-
     let countdown;
 
     const closeToast = () => {
@@ -17,7 +8,6 @@ function Toastified(toast, toastTimer, closeToastBtn) {
     };
 
     const openToast = (type) => {
-        toast.classList = [type];
         toast.style.animation = "open 0.3s cubic-bezier(.47,.02,.44,2) forwards";
         toastTimer.classList.add("timer-animation");
         clearTimeout(countdown);
@@ -27,7 +17,15 @@ function Toastified(toast, toastTimer, closeToastBtn) {
     };
 
     closeToastBtn.addEventListener("click", closeToast);
+
+    // Expose a method to reopen the toast
+    return {
+        openToast: (type) => openToast(type),
+        closeToast: () => closeToast(),
+    };
 }
+
+let toastInstance;
 
 function initializeToastified() {
     const toast = document.querySelector("#toast");
@@ -35,8 +33,16 @@ function initializeToastified() {
     const closeToastBtn = document.querySelector("#toast-close");
 
     if (toast && toastTimer && closeToastBtn) {
-        Toastified(toast, toastTimer, closeToastBtn);
+        toastInstance = Toastified(toast, toastTimer, closeToastBtn);
     } else {
         console.error("Failed to initialize Toastified: Elements not found.");
+    }
+}
+
+function showNewToast(type) {
+    if (toastInstance) {
+        toastInstance.openToast(type);
+    } else {
+        console.error("Toastified is not initialized.");
     }
 }

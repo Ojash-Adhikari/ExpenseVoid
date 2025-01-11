@@ -133,5 +133,19 @@ namespace ExpenseVoid.Services
             }
         }
 
+        public async Task<List<Tag>> GetTagsByUserIdAsync(Guid userId)
+        {
+            try
+            {
+                var tags = await LoadTagsAsync();
+                return tags.Where(t => t.User?.UserID == userId).ToList();
+            }
+            catch
+            {
+                Console.WriteLine($"Error Fetching Tags through userId {userId}");
+                throw;
+            }
+        }
+
     }
 }

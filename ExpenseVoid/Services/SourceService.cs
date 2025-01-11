@@ -123,6 +123,19 @@ namespace ExpenseVoid.Services
                 throw;
             }
         }
+        public async Task<List<Source>> GetSourceByUser(Guid userId)
+        {
+            try
+            {
+                var sources = await LoadSourceAsync();
+                return sources.Where(t => t.User?.UserID == userId).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching transactions for user ID {userId}: {ex.Message}");
+                throw;
+            }
+        }
 
 
     }

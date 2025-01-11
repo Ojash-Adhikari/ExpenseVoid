@@ -1,0 +1,391 @@
+﻿@* Directive statement Import *@
+@using Microsoft.JSInterop
+@using ExpenseVoid.Models
+@using ExpenseVoid.Services
+@using ExpenseVoid.Interface
+@using ExpenseVoid.Helper
+@using ExpenseVoid.Persistence
+
+@* Dependency Injection *@
+@inject IJSRuntime JSRuntime
+@inject IDebt debtService
+@inject IUser userService
+@inject ISource sourceService
+@inject EmailToUserMap EmailToUserMap
+@inject PreferencesStoreClone Storage
+@page "/Debts"
+
+@* CSS link *@
+<link rel="stylesheet" href="css/sidebar.css" />
+<link rel="stylesheet" href="css/Vanta.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+@* JavaScript Imports *@
+<script src="js/sidebar.js"></script>
+<script src="js/Vanta.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<h3>Debts</h3>
+
+<style>
+    .card {
+        width: 350px;
+        background-color: rgba(24, 24, 27, 0.8);
+        border-radius: 1rem;
+        margin-top: 20px;
+        margin-left: 20px;
+    }
+
+    .semi-transparent {
+        background-color: rgba(24, 24, 27, 0.6);
+    }
+</style>
+
+<body class="bg-gray-900 text-white">
+    <div id="vanta-bg" class="flex flex-col md:flex-row gap-4 p-4">
+        <!-- Sidebar / Navigation Menu -->
+        <div>
+            <div><NavMenu /></div>
+            <div>
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="card p-6">
+                            <h2 class="text-sm font-medium mb-1">
+                                <i class="fas fa-fire-flame-curved text-orange-500 mr-2"></i>Total Balace
+                            </h2>
+                            <div class="text-2xl font-semibold">@currentUser?.Balance</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="card p-6">
+                            <h2 class="text-sm font-medium mb-1">
+                                <i class="fas fa-fire-flame-curved text-orange-500 mr-2"></i>Total Debt Amount
+                            </h2>
+                            <div class="text-2xl font-semibold">@TotalUserDebt</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex flex-col gap-4">
+            <!-- Filter & Table Section -->
+            <div class="semi-transparent p-4 rounded-lg shadow-lg">
+                <!-- Filters -->
+                <div class="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Search Debt</label>
+                        <input type="text" @bind="searchTerm" class="w-full p-2 rounded bg-gray-700" placeholder="Enter debt details..." />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Sort by Amount</label>
+                        <select @bind="amountSort" class="w-full p-2 rounded bg-gray-700">
+                            <option value="">Select...</option>
+                            <option value="highest">Highest</option>
+                            <option value="lowest">Lowest</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Filter by Date</label>
+                        <div class="flex gap-2">
+                            <input type="date" @bind="startDate" class="w-1/2 p-2 rounded bg-gray-700" />
+                            <input type="date" @bind="endDate" class="w-1/2 p-2 rounded bg-gray-700" />
+                            <button type="button" class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center" @onclick="ClearDateFilters">
+                                <img src="https://static-00.iconduck.com/assets.00/filter-remove-icon-945x1024-a4srzflx.png" alt="Clear Filter" class="w-6 h-6" />
+                            </button>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <!-- Filtered Debts Table -->
+                <div>
+                    <table class="table-auto w-full text-left bg-gray-800 rounded-lg shadow-lg">
+                        <thead>
+                            <tr class="bg-gray-700 text-gray-300">
+                                <th class="px-4 py-2">#</th>
+                                <th class="px-4 py-2">Source</th>
+                                <th class="px-4 py-2">Amount</th>
+                                <th class="px-4 py-2">Borrowed Date</th>
+                                <th class="px-4 py-2">Due Date</th>
+                                <th class="px-4 py-2">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (filteredDebts.Any())
+                            {
+                                @foreach (var debt in filteredDebts.Select((d, index) => new { Debt = d, Index = index + 1 }))
+                                {
+                                    <tr class="border-b border-gray-700 hover:bg-gray-700">
+                                        <td class="px-4 py-2">@debt.Index</td>
+                                        <td class="px-4 py-2" style="color: @debt.Debt.DebtColor">@debt.Debt.Source?.Name</td>
+                                        <td class="px-4 py-2" style="color: @debt.Debt.DebtColor">@debt.Debt.Amount</td>
+                                        <td class="px-4 py-2" style="color: @debt.Debt.DebtColor">@debt.Debt.BorrowedDate?.ToString("yyyy-MM-dd")</td>
+                                        <td class="px-4 py-2" style="color: @debt.Debt.DebtColor">@debt.Debt.DueDate?.ToString("yyyy-MM-dd")</td>
+                                        <td class="px-4 py-2">@(debt.Debt.IsCleared == true ? "Cleared" : "Pending")</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td class="px-4 py-2 text-center text-gray-400" colspan="6">No debts match the filters.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Form Section -->
+            <div class="semi-transparent p-4 rounded-lg shadow-lg">
+                <div class="p-4 rounded shadow-lg">
+                    <EditForm Model="@debt" OnValidSubmit="HandleDebtSubmit">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Source</label>
+                                <InputSelect @bind-Value="selectedSourceId" class="w-full p-2 rounded bg-gray-700">
+                                    <option value="">Select a Source</option>
+                                    @foreach (var source in sourceList)
+                                    {
+                                        <option value="@source.SourceId">@source.Name</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Amount</label>
+                                <InputNumber @bind-Value="debt.Amount" class="w-full p-2 rounded bg-gray-700" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Borrowed Date</label>
+                                <InputDate @bind-Value="debt.BorrowedDate" class="w-full p-2 rounded bg-gray-700" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Due Date</label>
+                                <InputDate @bind-Value="debt.DueDate" class="w-full p-2 rounded bg-gray-700" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Notes</label>
+                                <InputTextArea @bind-Value="debt.Notes" class="w-full rounded bg-gray-700" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Debt Color</label>
+                                <input type="color" @bind="debt.DebtColor" class="w-full p-2 rounded bg-gray-700" style="height: 40px;" />
+                            </div>
+                        </div>
+                        <button type="submit" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Add Debt</button>
+                    </EditForm>
+
+                    @if (isSuccess)
+                    {
+                        <p class="text-green-500 mt-4">Debt added successfully!</p>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <ToastALL ErrorMessageDebt="@errorMessage" />
+}
+
+
+@code {
+    private bool vantaInitialized;
+    private User? currentUser;
+    private Double currentUserBalance;
+    private Double? TotalUserDebt;
+    private Debt debt = new Debt
+        {
+            Source = new Models.Source(),
+            User = new User()
+        };
+    private List<Debt> currentUserDebts = new();
+    private List<Models.Source> sourceList = new();
+    private Guid selectedSourceId;
+    private bool isSuccess = false;
+    private string errorMessage;
+    private string searchTerm = string.Empty;
+    private string amountSort = string.Empty;
+    private DateTime? startDate = null;
+    private DateTime? endDate = null;
+
+    private IEnumerable<Debt> filteredDebts
+    {
+        get
+        {
+            var debts = currentUserDebts
+                .Where(d => string.IsNullOrEmpty(searchTerm) ||
+                            (d.Source?.Name?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false))
+                .Where(d => !startDate.HasValue || d.BorrowedDate >= startDate)
+                .Where(d => !endDate.HasValue || d.DueDate <= endDate);
+
+            return amountSort switch
+            {
+                "highest" => debts.OrderByDescending(d => d.Amount),
+                "lowest" => debts.OrderBy(d => d.Amount),
+                _ => debts
+            };
+        }
+    }
+
+
+    private void ClearDateFilters()
+    {
+        startDate = null;
+        endDate = null;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            currentUser = await EmailToUserMap.GetUserByEmailAsync(Storage);
+
+            if (currentUser != null)
+            {
+                currentUserDebts = await debtService.GetDebtByUserIdAsync(currentUser.UserID); 
+                sourceList = await sourceService.GetSourceByUser(currentUser.UserID);
+
+                await CalculateTotalUserDebtAsync();
+            }
+            else
+            {
+                errorMessage = "User not found.";
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load debts: {ex.Message}";
+        }
+    }
+
+
+    private async Task CalculateTotalUserDebtAsync()
+    {
+        try
+        {
+            // Ensure the user is authenticated
+            if (currentUser == null)
+            {
+                errorMessage = "User is not authenticated.";
+                TotalUserDebt = 0;
+                return;
+            }
+
+            // Load debts if not already loaded
+            if (currentUserDebts == null || !currentUserDebts.Any())
+            {
+                currentUserDebts = await debtService.LoadDebtAsync();
+            }
+
+            // Calculate the total debt
+            TotalUserDebt = currentUserDebts
+                .Where(d => d.User?.UserID == currentUser.UserID)
+                .Sum(d => d.Amount);
+
+            errorMessage = string.Empty; // Clear any errors
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to calculate total user debt: {ex.Message}";
+            TotalUserDebt = 0; // Reset to zero in case of error
+            Console.WriteLine($"Error in CalculateTotalUserDebtAsync: {ex.Message}");
+        }
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !vantaInitialized)
+        {
+            try
+            {
+                vantaInitialized = true;
+                await JSRuntime.InvokeVoidAsync("loadVantaScripts");
+                await JSRuntime.InvokeVoidAsync("initializeVanta");
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine($"Error initializing Vanta: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task HandleDebtSubmit()
+    {
+        try
+        {
+            // Validate required fields
+            if (selectedSourceId == Guid.Empty ||
+                debt.Amount <= 0 ||
+                debt.BorrowedDate == default ||
+                debt.DueDate == default)
+            {
+                errorMessage = "Please fill out all the required fields.";
+                return;
+            }
+
+            // Validate that DueDate is not before BorrowedDate
+            if (debt.DueDate < debt.BorrowedDate)
+            {
+                errorMessage = "Due date cannot be earlier than the borrowed date.";
+                return;
+            }
+
+            if (currentUser == null)
+            {
+                errorMessage = "User is not authenticated.";
+                return;
+            }
+
+            if (debt.Amount > currentUser.Balance)
+            {
+                errorMessage = "You added debt which is greater than your current balance!";
+            }
+
+            // Assign the selected source
+            var source = sourceList.FirstOrDefault(s => s.SourceId == selectedSourceId);
+            if (source == null)
+            {
+                errorMessage = "Selected source not found.";
+                return;
+            }
+
+            debt.Source = source;
+            debt.User = currentUser;
+
+            // Save the debt
+            await debtService.SaveDebtAsync(debt);
+
+            isSuccess = true;
+            errorMessage = string.Empty; // Clear any error messages
+
+            // Reset the form
+            debt = new Debt
+                {
+                    User = currentUser,
+                    Source = new Models.Source()
+                };
+
+            selectedSourceId = Guid.Empty; // Reset the selected source
+            await OnInitializedAsync(); // Reload debt data
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to add debt: {ex.Message}";
+            Console.WriteLine($"Error in HandleDebtSubmit: {ex.Message}");
+        }
+    }
+
+
+
+}

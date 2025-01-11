@@ -13,5 +13,7 @@ namespace ExpenseVoid.Interface
         Task RemoveTagAsync(Tag tag); // Delete
         Task EditTagAsync(Tag tag); // Update
         Task<List<Tag>> LoadTagsAsync(); // Read
+
+        Task<List<Tag>> GetTagsByUserIdAsync(Guid userId);
     }
 }

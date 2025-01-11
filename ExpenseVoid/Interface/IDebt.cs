@@ -13,5 +13,6 @@ namespace ExpenseVoid.Interface
         Task RemoveDebtAsync(Debt debt);
         Task EditDebtAsync(Debt debt);
         Task<List<Debt>> LoadDebtAsync();
+        Task<List<Debt>> GetDebtByUserIdAsync(Guid userId);
     }
 }
