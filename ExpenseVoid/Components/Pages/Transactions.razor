@@ -13,6 +13,7 @@
 @inject ITag tagService
 @inject EmailToUserMap EmailToUserMap
 @inject PreferencesStoreClone Storage
+@inject NavigationManager Navigation
 @page "/Transactions"
 
 @* CSS link *@
@@ -297,6 +298,8 @@
             }
         }
     }
+
+
 
     private async Task HandleTransactionSubmit()
     {

@@ -5,9 +5,16 @@
 @using ExpenseVoid.Services
 @using ExpenseVoid.Interface
 @using ExpenseVoid.Helper
+@using CommunityToolkit.Maui.Storage
+@using OfficeOpenXml;
+@using OfficeOpenXml.Style;
 
 @* Dependency Injection *@
 @inject IJSRuntime JSRuntime
+@inject ITransaction transactionService
+@inject IProfile profileService
+@inject IDebt debtService
+@inject NavigationManager Navigation
 @inject EmailToUserMap EmailToUserMap
 @inject PreferencesStoreClone Storage
 @page "/Dashboard"
@@ -43,6 +50,16 @@
         );
         const debitData = filteredTransactions.map(t => t.TransactionType.Debit || 0); 
         const creditData = filteredTransactions.map(t => t.TransactionType.Credit || 0); 
+
+        const totalIncome = transactions
+            .filter(t => t.TransactionType.Credit !== null)
+            .reduce((sum, t) => sum + (t.TransactionType.Credit || 0), 0);
+
+        const totalExpenses = transactions
+            .filter(t => t.TransactionType.Debit !== null)
+            .reduce((sum, t) => sum + (t.TransactionType.Debit || 0), 0);
+
+        const totalBalance = totalIncome - totalExpenses;
 
         // Initialize the chart
         expensesChart = new Chart(document.getElementById('expensesChart'), {
@@ -97,9 +114,10 @@
         caloriesChart = new Chart(document.getElementById('caloriesChart'), {
             type: 'doughnut',
             data: {
+                labels: ['Income', 'Expenses'],
                 datasets: [{
-                    data: [1623, 377],
-                    backgroundColor: ['#3b82f6', '#27272a'],
+                    data: [totalIncome, totalExpenses],
+                    backgroundColor: ['#3b82f6', '#ef4444'],
                     borderWidth: 0
                 }]
             },
@@ -107,7 +125,39 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 cutout: '85%',
-                plugins: { legend: { display: false } }
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            color: darkMode.textColor,
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (tooltipItem) {
+                                const value = tooltipItem.raw;
+                                return `${tooltipItem.label}: $${value.toLocaleString()}`;
+                            }
+                        }
+                    },
+                    doughnutLabel: {
+                        labels: [
+                            {
+                                text: `Balance`,
+                                font: { size: '16', weight: 'bold' },
+                                color: darkMode.textColor
+                            },
+                            {
+                                text: `$${totalBalance.toLocaleString()}`,
+                                font: { size: '24', weight: 'bold' },
+                                color: darkMode.textColor
+                            }
+                        ]
+                    }
+                }
             }
         });
         // Call this after page load
@@ -147,13 +197,13 @@
                 <div class="card p-6 mb-[20px]">
 
                     <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-White-400 text-sm font-medium mr-[17px]">Monthly Expenses</h2>
+                        <h2 class="text-White-400 text-sm font-medium mr-[17px]">Monthly Transactions</h2>
                         <div class="flex items-center gap-2">
                             <span class="text-White-400 text-xs">Mar 1, 2023 - Jul 31, 2024</span>
                         </div>
                     </div>
                     <div class="mb-6">
-                        <h3 class="text-4xl font-semibold">$5,420<span class="text-sm text-white-400 ml-1">avg.</span></h3>
+                        <h3 class="text-4xl font-semibold">$@AvgTransactionBalace<span class="text-sm text-white-400 ml-1">avg.</span></h3>
                     </div>
                     <div style="height: 120px;">
                         <canvas id="expensesChart"></canvas>
@@ -161,14 +211,32 @@
                 </div>
                 <div class="card p-2">
                     <div class="card p-6 border-2 border-indigo-500">
-                        <h2 class="text-white-400 mb-[17px] text-[#50d71e]">Top 5 Highest Transactions</h2>
-                        <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 10000$, Paid -> John</h2>
-                        <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 10000$, Paid -> John</h2>
-                        <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 10000$, Paid -> John</h2>
-                        <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 10000$, Paid -> John</h2>
-                        <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 10000$, Paid -> John</h2>
+                        <h2 class="text-white-400 mb-[20px] text-[#50d71e]">Top 5 Transactions <span class="text-green-500 text-xl">↗ </span></h2>
+                        @if (currentUserTransactions != null && currentUserTransactions.Any())
+                        {
+                            foreach (var transaction in currentUserTransactions)
+                            {
+                                <h2 class="text-White-400 text-sm font-medium mb-[10px]">
+                                    @if (transaction.TransactionType?.Debit > 0)
+                                    {
+                                        <span style="color:#913636">Debit: @($"{transaction.TransactionType?.Debit:C}")</span>
+                                    }
+                                    @if (transaction.TransactionType?.Credit > 0)
+                                    {
+                                        <span style="color: #117318">Credit: @($"{transaction.TransactionType?.Credit:C}")</span>
+                                    }
+                                    <span>, @($"{transaction.TransactionDate:MMM dd, yyyy}")</span>
+                                </h2>
+                            }
+                        }
+                        else
+                        {
+                            <h2 class="text-White-400 text-sm font-medium mb-[17px]">No transactions available.</h2>
+                        }
                     </div>
                 </div>
+
+
             </div>
             
             <div class="card p-6">
@@ -177,7 +245,7 @@
                         <h2 class="text-sm font-medium mb-1">
                             <i class="fas fa-fire-flame-curved text-orange-500 mr-2"></i>Balance
                         </h2>
-                        <div class="text-2xl font-semibold calories-value">10000$</div>
+                        <div class="text-2xl font-semibold calories-value">@currentUser?.Balance</div>
 
                     </div>
                 </div>
@@ -186,91 +254,163 @@
                         <h3 class="text-sm font-medium mb-1">
                             <i class="fas fa-shoe-prints text-blue-500 mr-2"></i>Total Profile
                         </h3>
-                        <div class="text-2xl font-semibold">4</div>
+                        <div class="text-2xl font-semibold">@profileCount</div>
                     </div>
                     <div>
                         <h3 class="text-sm font-medium mb-1">
                             <i class="fas fa-dumbbell text-purple-500 mr-2"></i>Total Transactions
                         </h3>
-                        <div class="text-2xl font-semibold">100</div>
+                        <div class="text-2xl font-semibold">@transactionCount</div>
                     </div>
                 </div>
                 <div class="flex justify-center" style="height: 160px;">
                     <canvas id="caloriesChart"></canvas>
                 </div>
             </div>
+
             <div class="card p-6">
                 <div class="card p-6 mb-[15px] border-2 border-indigo-500">
                     <h2 class="text-white-400 text-sm mb-2">Total Income</h2>
-                    <div class="text-3xl font-semibold">$228,441</div>
+                    <div class="text-3xl font-semibold">@TotalIncome</div>
                     <div class="text-green-500 text-sm">↗ 3.3%</div>
                 </div>
 
                 <div class="card p-6 mb-[15px] border-2 border-indigo-500">
                     <h2 class="text-white-400 text-sm mb-2">Total Expenses</h2>
-                    <div class="text-3xl font-semibold">$71,887</div>
+                    <div class="text-3xl font-semibold">@TotalExpenses</div>
                     <div class="text-yellow-500 text-sm">→ 0.0%</div>
                 </div>
 
-                <div class="card p-6 border-2 border-indigo-500">
+                <div class="card p-6 mb-[15px] border-2 border-indigo-500">
                     <h2 class="text-white-400 text-sm mb-2">Total Saving</h2>
-                    <div class="text-3xl font-semibold">$156,554</div>
+                    <div class="text-3xl font-semibold">@Savings</div>
                     <div class="text-red-500 text-sm">↘ 3.3%</div>
                 </div>
+                <div class="card p-6 border-2 border-indigo-500">
+                    <h2 class="text-white-400 text-sm mb-2">Total Debt</h2>
+                    <div class="text-3xl font-semibold">@TotalDebts</div>
+                    <div class="text-yellow-500 text-sm">↘ 3.3%</div>
+                </div>
             </div>
+
 
 
             <div class="card p-2">
                 <div class="card p-6 border-2 border-indigo-500">
                     <h2 class="text-white-400 mb-[17px] text-[#50d71e]">Top 5 Lowest Transactions</h2>
-                    <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 20$, Paid -> John</h2>
-                    <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 20$, Paid -> John</h2>
-                    <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 20$, Paid -> John</h2>
-                    <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 20$, Paid -> John</h2>
-                    <h2 class="text-White-400 text-sm font-medium mb-[17px]">Expense : 20$, Paid -> John</h2>
+                    @if (currentUserTransactionsAscending != null && currentUserTransactionsAscending.Any())
+                    {
+                        foreach (var transaction in currentUserTransactionsAscending)
+                        {
+                            <h2 class="text-White-400 text-sm font-medium mb-[10px]">
+                                @if (transaction.TransactionType?.Debit > 0)
+                                {
+                                    <span style="color:#913636">Debit: @($"{transaction.TransactionType?.Debit:C}")</span>
+                                }
+                                @if (transaction.TransactionType?.Credit > 0)
+                                {
+                                    <span style="color: #117318">Credit: @($"{transaction.TransactionType?.Credit:C}")</span>
+                                }
+                                <span>, @($"{transaction.TransactionDate:MMM dd, yyyy}")</span>
+                            </h2>
+                        }
+                    }
+                    else
+                    {
+                        <h2 class="text-White-400 text-sm font-medium mb-[17px]">No transactions available.</h2>
+                    }
                 </div>
             </div>
             <div class="card p-4 col-span-2">
-                <div>
-                    <p>@currentUser</p>
-                </div>
-                <div>
-                    <button type="submit" class="pushable1">
+                <div class="button-container">
+                    <button type="submit" class="pushable1" @onclick="NavigateToTransactions">
                         <span class="front1">Add Transaction</span>
+                    </button>
+                    <button type="button" class="pushable1"  @onclick="SaveToExcel">
+                        <span class="front1">Download Transactions</span>
+                    </button>
+                </div>
+                <div class="button-container">
+                    <button type="submit" class="pushable1" @onclick="NavigateToDebts">
+                        <span class="front1">Add Debt</span>
+                    </button>
+                    <button type="button" class="pushable1" @onclick="SaveToExcel">
+                        <span class="front1">Download Debt</span>
                     </button>
                 </div>
             </div>
 
+
             
         </div>
         <div class="card w-[400px] h-[937px] mt-[14px] p-6">
-            <div class="card p-4 border-2 border-indigo-500 mb-[20px]">
-               <h2 class="text-white-400 mb-[17px] text-[#50d71e]">User Profiles</h2>
-                    <h2 class="text-White-400 text-sm font-medium mb-[17px]">Rakshita Baidya</h2>
-                    <h2 class="text-White-400 text-sm font-medium mb-[17px]">Ojash Adhikari</h2>
-                    <h2 class="text-White-400 text-sm font-medium mb-[17px]">Kshitiz Shrestha</h2>
-                    <h2 class="text-White-400 text-sm font-medium mb-[17px]">Devanshu Aryal</h2>
-                    <h2 class="text-White-400 text-sm font-medium mb-[17px]">Bidur Neupane</h2>
-            </div>
-            <div class="card p-4 border-2 border-indigo-500">
-                <h2 class="text-white-400 mb-[17px] text-[#50d71e]">User Profiles</h2>
-                <h2 class="text-White-400 text-sm font-medium mb-[17px]">Rakshita Baidya</h2>
-                <h2 class="text-White-400 text-sm font-medium mb-[17px]">Ojash Adhikari</h2>
-                <h2 class="text-White-400 text-sm font-medium mb-[17px]">Kshitiz Shrestha</h2>
-                <h2 class="text-White-400 text-sm font-medium mb-[17px]">Devanshu Aryal</h2>
-                <h2 class="text-White-400 text-sm font-medium mb-[17px]">Bidur Neupane</h2>
-            </div>
+    <!-- Pending Debts Section -->
+        <div class="card p-4 border-2 border-indigo-500 mb-[20px]">
+            <h2 class="text-white-400 mb-[17px] text-[#50d71e]">Pending Debts</h2>
+            @if (debtList.Any(debt => debt.IsCleared == false))
+            {
+                <div class="scrollable-container">
+                    @foreach (var debt in debtList.Where(debt => debt.IsCleared == false))
+                    {
+                        <div class="p-2 mb-4 bg-gray-800 rounded-lg shadow-lg">
+                            <h3 class="text-white-400 text-sm font-medium">Source: @debt.Source?.Name</h3>
+                            <p class="text-gray-300 text-sm">Amount: @debt.Amount?.ToString("C")</p>
+                            <p class="text-gray-300 text-sm">Borrowed On: @debt.BorrowedDate?.ToString("MMMM dd, yyyy")</p>
+                            <p class="text-gray-300 text-sm">Due Date: @debt.DueDate?.ToString("MMMM dd, yyyy")</p>
+                            <p class="text-gray-400 text-xs italic">@debt.Notes</p>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <h3 class="text-gray-400 text-sm font-medium">No pending Debts, Good Job!</h3>
+            }
         </div>
 
+    <!-- User Profiles Section -->
+    <div class="card p-4 border-2 border-indigo-500 mb-[20px]">
+        <h2 class="text-white-400 mb-[17px] text-[#50d71e]">User Profiles</h2>
+        @if (userProfiles.Any())
+        {
+            @foreach (var profile in userProfiles)
+            {
+                <div class="p-2 mb-4 bg-gray-800 rounded-lg shadow-lg">
+                    <h2 class="text-white-400 text-sm font-medium mb-[17px]">@profile.Name :: @profile.Group.GroupName</h2>
+                    <h2 class="text-white-400 text-sm font-medium mb-[17px]">@profile.Balance</h2>
+                </div>
+                
+            }
+        }
+        else
+        {
+            <h2 class="text-gray-400 text-sm font-medium">No profiles available.</h2>
+        }
     </div>
+</div>
 
 
+
+    </div>
 </body>
 
 @code {
+    public string errormessage;
     private bool vantaInitialized;
     private User? currentUser;
     private bool isAvailable;
+    private List<Transaction> currentUserTransactions = new();
+    private List<Transaction> currentUserTransactionsAscending = new();
+    private List<Profile> userProfiles = new();
+    private List<Debt> debtList = new();
+    private int transactionCount;
+    private int profileCount;
+    private double TotalIncome = 0;
+    private double TotalExpenses = 0;
+    private double Savings = 0;
+    private double? TotalDebts = 0;
+    private double TotalTransactionBalance = 0;
+    private double AvgTransactionBalace = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -279,11 +419,50 @@
         if (currentUser != null)
         {
             Console.WriteLine($"Welcome, {currentUser.FirstName}!");
+
+            // Fetch transactions for the current user
+            var allTransactions = await transactionService.GetTransactionsByUserIdAsync(currentUser.UserID);
+            var allProfiles = await profileService.GetProfileByUserIdAsync(currentUser.UserID);
+            var allDebts = await debtService.GetDebtByUserIdAsync(currentUser.UserID);
+
+            userProfiles = allProfiles ?? new List<Profile>();
+            debtList = allDebts ?? new List<Debt>();
+
+            // Sort and limit to top 5 transactions
+            currentUserTransactions = allTransactions
+              .OrderByDescending(t => (t.TransactionType?.Debit ?? 0) + (t.TransactionType?.Credit ?? 0))
+              .Take(5)
+              .ToList();
+
+            currentUserTransactionsAscending = allTransactions
+              .OrderBy(t => (t.TransactionType?.Debit ?? 0) + (t.TransactionType?.Credit ?? 0))
+              .Take(5)
+              .ToList();
+
+            transactionCount = allTransactions?.Count() ?? 0;
+            profileCount = allProfiles?.Count() ?? 0;
+
+            TotalIncome = allTransactions.Sum(t => t.TransactionType?.Credit ?? 0);
+            TotalExpenses = allTransactions.Sum(t => t.TransactionType?.Debit ?? 0);
+            Savings = TotalIncome - TotalExpenses;
+            TotalTransactionBalance = TotalIncome + TotalExpenses;
+            AvgTransactionBalace = TotalTransactionBalance / 12;
+            TotalDebts = allDebts.Sum(d => d.Amount);
+
         }
         else
         {
             Console.WriteLine("No user found or email is not set in storage.");
         }
+    }
+
+    private void NavigateToTransactions()
+    {
+        Navigation.NavigateTo("/Transactions");
+    }
+    private void NavigateToDebts()
+    {
+        Navigation.NavigateTo("/Debts");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -312,4 +491,50 @@
             }
         }
     }
+
+    private async Task SaveToExcel()
+    {
+        try
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // Set EPPlus license context
+
+            var transactionService = new TransactionService();
+
+            // Get the Excel file path
+            var fileName = "Transactions.xlsx";
+            var filePath = Path.Combine(FileSystem.AppDataDirectory, fileName);
+
+            // Ensure the directory exists
+            var directory = Path.GetDirectoryName(filePath);
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            // Save transactions to the Excel file
+            await transactionService.SaveTransactionsToExcelAsync(filePath);
+
+            // Read the file into a MemoryStream
+            var fileBytes = File.ReadAllBytes(filePath);
+            using var stream = new MemoryStream(fileBytes);
+
+            // Save the file using FileSaver
+            var result = await FileSaver.Default.SaveAsync(fileName, stream);
+
+            if (result.IsSuccessful)
+            {
+                Console.WriteLine($"File saved to {result.FilePath}");
+            }
+            else
+            {
+                Console.WriteLine("File save canceled or failed.");
+            }
+        }
+        catch (Exception ex)
+        {
+            errormessage = $"Error saving to Excel: {ex.Message}";
+            Console.WriteLine($"Error saving to Excel: {ex.Message}");
+        }
+    }
+    
 }

@@ -111,6 +111,7 @@
                                 <th class="px-4 py-2">Borrowed Date</th>
                                 <th class="px-4 py-2">Due Date</th>
                                 <th class="px-4 py-2">Status</th>
+                                <th class="px-4 py-2">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -125,17 +126,40 @@
                                         <td class="px-4 py-2" style="color: @debt.Debt.DebtColor">@debt.Debt.BorrowedDate?.ToString("yyyy-MM-dd")</td>
                                         <td class="px-4 py-2" style="color: @debt.Debt.DebtColor">@debt.Debt.DueDate?.ToString("yyyy-MM-dd")</td>
                                         <td class="px-4 py-2">@(debt.Debt.IsCleared == true ? "Cleared" : "Pending")</td>
+                                        <td class="px-4 py-2">
+                                            <!-- Clear Debt Button -->
+                                            <button class="bg-green-500 text-white px-3 py-1 rounded-lg mr-2 hover:bg-green-600"
+                                                    title="Clear Debt"
+                                                    @onclick="() => HandleClearDebt(debt.Debt)">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+
+                                            <!-- Edit Debt Button -->
+                                            <button class="bg-blue-500 text-white px-3 py-1 rounded-lg mr-2 hover:bg-blue-600"
+                                                    title="Edit Debt"
+                                                    @onclick="() => HandleEditDebt(debt.Debt)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+
+                                            <!-- Remove Debt Button -->
+                                            <button class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600"
+                                                    title="Remove Debt"
+                                                    @onclick="() => HandleRemoveDebt(debt.Debt)">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
                                     </tr>
                                 }
                             }
                             else
                             {
                                 <tr>
-                                    <td class="px-4 py-2 text-center text-gray-400" colspan="6">No debts match the filters.</td>
+                                    <td class="px-4 py-2 text-center text-gray-400" colspan="7">No debts match the filters.</td>
                                 </tr>
                             }
                         </tbody>
                     </table>
+
                 </div>
             </div>
 
@@ -267,6 +291,51 @@
         }
     }
 
+    private async Task HandleClearDebt(Debt debt)
+    {
+        if (debt == null)
+        {
+            errorMessage = "Debt cannot be null.";
+            return;
+        }
+
+        if(debt.IsCleared == true)
+        {
+            errorMessage = "Debt has been cleared! Good Job";
+            return;
+        }
+
+        try
+        {
+            // Call the service to clear the debt
+            await debtService.ClearDebtAsync(debt);
+
+            // Update the UI (e.g., reload the debts or notify the user)
+            await OnInitializedAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error clearing debt: {ex.Message}";
+        }
+    }
+
+    private async Task HandleEditDebt(Debt debt)
+    {
+
+    }
+    private async Task HandleRemoveDebt(Debt debt)
+    {
+        try
+        {
+            await debtService.RemoveDebtAsync(debt);
+            OnInitializedAsync();
+            Console.WriteLine($"Debt with ID {debt.DebtId} removed successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error removing debt: {ex.Message}");
+        }
+    }
 
     private async Task CalculateTotalUserDebtAsync()
     {

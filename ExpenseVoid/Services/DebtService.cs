@@ -12,6 +12,7 @@ namespace ExpenseVoid.Services
     public class DebtService : IDebt
     {
         private readonly string debtFilePath = Path.Combine(AppContext.BaseDirectory, "ExpenseVoid", "Debt", "Debt.json");
+        private readonly string usersFilePath = Path.Combine(AppContext.BaseDirectory, "ExpenseVoid", "Account", "UserDetails.json");
         public async Task SaveDebtAsync(Debt debt)
         {
             try
@@ -19,6 +20,10 @@ namespace ExpenseVoid.Services
                 if (debt.DebtId == Guid.Empty)
                 {
                     debt.DebtId = Guid.NewGuid();
+                }
+                if(debt.IsCleared == null)
+                {
+                    debt.IsCleared = false;
                 }
                 var debts = await LoadDebtAsync();
                 debts.Add(debt);
@@ -130,6 +135,8 @@ namespace ExpenseVoid.Services
             }
         }
 
+        //Geting User specific Debts
+
         public async Task<List<Debt>> GetDebtByUserIdAsync(Guid userId)
         {
             try
@@ -143,6 +150,87 @@ namespace ExpenseVoid.Services
                 throw;
             }
         }
+
+        //Geting Users for Debts
+        private async Task SaveUsersAsync(List<User> users)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(users, new JsonSerializerOptions { WriteIndented = true });
+
+                await File.WriteAllTextAsync(usersFilePath, json);
+            }
+            catch (IOException ioEx)
+            {
+                Console.WriteLine($"I/O error while loading users: {ioEx.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error while saving users: {ex.Message}");
+                throw;
+            }
+        }
+        private async Task<List<User>> LoadUsersAsync()
+        {
+            try
+            {
+                if (!File.Exists(usersFilePath))
+                {
+                    return new List<User>();
+                }
+
+                var json = await File.ReadAllTextAsync(usersFilePath);
+                return JsonSerializer.Deserialize<List<User>>(json) ?? new List<User>();
+            }
+            catch (JsonException jsonEx)
+            {
+                Console.WriteLine($"JSON deserialization error: {jsonEx.Message}");
+                return new List<User>();
+            }
+            catch (IOException ioEx)
+            {
+                Console.WriteLine($"I/O error while loading users: {ioEx.Message}");
+                return new List<User>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error while loading users: {ex.Message}");
+                return new List<User>();
+            }
+        }
+
+        //Clearing Debts
+        public async Task ClearDebtAsync(Debt debt)
+        {
+            try
+            {
+                if (debt.User == null) return;
+
+                // Mark the debt as cleared
+                debt.IsCleared = true;
+
+                // Load users, update the balance, and save users
+                var users = await LoadUsersAsync();
+                var user = users.FirstOrDefault(u => u.UserID == debt.User.UserID);
+                if (user != null)
+                {
+                    user.Balance -= debt.Amount ?? 0;
+                    await SaveUsersAsync(users);
+                }
+
+                // Update the debt in the file
+                await EditDebtAsync(debt);
+
+                // Schedule the debt removal after 24 hours
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error clearing debt: {ex.Message}");
+            }
+        }
+
+
 
     }
 }

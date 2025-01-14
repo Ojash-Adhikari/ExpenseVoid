@@ -1,0 +1,208 @@
+﻿@page "/Finance"
+
+@* CSS link *@
+<link rel="stylesheet" href="css/HomeAddon.css" />
+
+@* JavaScript Imports *@
+<script src="js/HomeAddon.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<body>
+    <!-- Header with navigation -->
+    <header>
+        <nav>
+            <div class="logo">Expense<span>Void</span></div>
+            <div class="menu-icon" id="menu-icon" aria-label="Toggle navigation menu" role="button" tabindex="0">
+                <span class="nav-icon"></span>
+            </div>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/About">About</a></li>
+                <li><a href="/Finance">Financial Tips</a></li>
+                <li><a href="/Login" class="pushable2">Login</a></li>
+                <li><a href="/Registration" class="pushable2">Register</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main content -->
+    <main class="mt-5">
+        <!-- Features Section -->
+        <section id="features" class="features-section section-container pattern-section">
+            <div class="container section-flex">
+                <div class="text-content">
+                    <h2>What is Debit and Credit?</h2>
+                    <p>Debit and credit are fundamental financial concepts. Debit refers to money spent or withdrawn, while credit represents money received or owed to you. Understanding these concepts helps in managing your finances effectively.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Debt Section -->
+        <section id="debt" class="debt-section section-container">
+            <div class="container section-flex">
+                <div class="text-content">
+                    <h2>What is Debt?</h2>
+                    <p>Debt is the amount of money borrowed that must be repaid, often with interest. It can come in various forms such as loans, credit cards, or mortgages. Managing debt wisely is key to financial stability.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Financial Tips Section -->
+        <section id="tips" class="financial-tips-section section-container pattern-section">
+            <div class="container">
+                <h2>Tips About How to Regulate Your Finances</h2>
+                <p>Developing good financial habits is essential for long-term success. By understanding and adopting practical strategies, you can achieve financial stability and peace of mind. Here are some tips to help you regulate your finances effectively:</p>
+
+                <h3>1. Track Your Expenses</h3>
+                <p>Maintain a detailed record of your daily, weekly, and monthly expenses to identify spending patterns. Categorize your expenditures into essentials (rent, groceries, utilities) and non-essentials (entertainment, dining out). This helps you pinpoint areas where you can cut back and save more.</p>
+
+                <h3>2. Set Clear Financial Goals</h3>
+                <p>Define short-term, medium-term, and long-term financial goals. Whether it’s saving for a vacation, paying off a loan, or building a retirement fund, having specific goals provides motivation and direction for your financial decisions.</p>
+
+                <h3>3. Create and Stick to a Budget</h3>
+                <p>A budget is the cornerstone of financial regulation. Allocate your income to essential expenses, savings, and discretionary spending. Consider adopting the 50/30/20 rule: 50% for needs, 30% for wants, and 20% for savings or debt repayment.</p>
+
+                <h3>4. Build an Emergency Fund</h3>
+                <p>An emergency fund acts as a financial safety net. Aim to save at least three to six months' worth of living expenses to cover unexpected situations such as medical emergencies or job loss.</p>
+
+                <h3>5. Minimize Debt</h3>
+                <p>Focus on paying off high-interest debts first, such as credit card balances. Avoid taking on unnecessary loans and live within your means to prevent accumulating more debt.</p>
+
+                <h3>6. Invest Wisely</h3>
+                <p>Learn about different investment options such as stocks, bonds, and mutual funds. Diversify your investments to balance risk and returns, and consider consulting a financial advisor if needed.</p>
+
+                <h3>7. Educate Yourself About Finances</h3>
+                <p>Financial literacy is key to making informed decisions. Take time to read books, attend workshops, or explore online resources to improve your understanding of personal finance concepts.</p>
+
+                <h3>External Resources</h3>
+                <p>For more detailed guidance on financial regulation, check out the following resources:</p>
+                <ul class="financial-links">
+                    <li>
+                        <a href="https://www.investopedia.com/" target="_blank" rel="noopener noreferrer">
+                            Investopedia: Personal Finance
+                        </a><br />
+                        A comprehensive resource on budgeting, investing, and financial planning.
+                    </li>
+                    <li>
+                        <a href="https://www.nerdwallet.com/" target="_blank" rel="noopener noreferrer">
+                            NerdWallet
+                        </a><br />
+                        Tools and articles to help you manage money and build financial health.
+                    </li>
+                    <li>
+                        <a href="https://www.consumerfinance.gov/" target="_blank" rel="noopener noreferrer">
+                            Consumer Financial Protection Bureau
+                        </a><br />
+                        Resources for managing money, reducing debt, and planning for the future.
+                    </li>
+                    <li>
+                        <a href="https://www.fidelity.com/" target="_blank" rel="noopener noreferrer">
+                            Fidelity: Financial Education
+                        </a><br />
+                        Insights and strategies to help you manage and grow your wealth.
+                    </li>
+                </ul>
+
+
+
+            </div>
+        </section>
+
+
+        <!-- Financial Literacy Importance Section -->
+        <section id="literacy" class="literacy-section section-container pattern-section">
+            <div class="container">
+                <h2>Importance of Financial Literacy</h2>
+                <p>Financial literacy is crucial for making informed decisions about saving, investing, and managing money. It empowers individuals to achieve financial security and independence.</p>
+            </div>
+        </section>
+
+        <!-- Fundamental Components of Financial Literacy Section -->
+        <section id="components" class="components-section section-container">
+            <div class="container">
+                <h2>Fundamental Components of Financial Literacy</h2>
+                <p>Financial literacy is essential for achieving long-term financial well-being. It encompasses various components that empower individuals to make informed decisions about their money. These include:</p>
+
+                <h3>1. Budgeting</h3>
+                <p>Budgeting involves planning how to allocate your income across different uses, such as spending, investing, saving, and giving. A well-balanced budget ensures financial security and prosperity by prioritizing essential needs, paying off existing debts, and setting aside money for future goals. Effective budgeting allows individuals to live within their means while working toward financial stability.</p>
+
+                <h3>2. Investing</h3>
+                <p>Investing is about growing your wealth by putting money into opportunities that yield returns over time. To become financially literate in investing, it's important to understand key concepts such as interest rates, price levels, diversification, risk mitigation, and market indexes. By mastering these fundamentals, individuals can make smarter investment choices, mitigate risks, and maximize their income potential.</p>
+
+                <h3>3. Borrowing</h3>
+                <p>Borrowing is a common financial activity, but it needs to be done wisely. Understanding interest rates, compound interest, the time value of money, payment periods, and loan structures is crucial for effective borrowing. When these aspects are clear, individuals can minimize borrowing costs, manage repayments, and reduce long-term financial stress, ensuring better financial health.</p>
+
+                <h3>4. Taxation</h3>
+                <p>Taxation significantly affects net income, making it an important aspect of financial literacy. Different income sources—such as employment, investments, rentals, and inheritances—are taxed differently. Gaining knowledge about various tax rates and deductions helps individuals optimize their income, plan for tax obligations, and achieve economic stability.</p>
+
+                <h3>5. Personal Financial Management</h3>
+                <p>At the core of financial literacy is personal financial management, which involves integrating all the above components. By balancing budgeting, investing, borrowing, and taxation, individuals can create a comprehensive financial plan. This approach helps in building savings, increasing investments, and reducing debts, ultimately leading to financial security and independence.</p>
+
+                <p>Mastering these fundamental components of financial literacy equips individuals with the skills needed to navigate financial challenges, make sound decisions, and secure a prosperous future.</p>
+            </div>
+        </section>
+
+
+        <!-- Newsletter Section -->
+        <section class="newsletter-section section-container pattern-section">
+            <div class="container">
+                <h2>Stay Updated</h2>
+                <p>Subscribe to our newsletter to receive financial tips, insights, and updates about managing your finances effectively.</p>
+                <form class="newsletter-form">
+                    <input type="email" name="email" placeholder="Your email address">
+                    <button type="submit" class="pushable1">
+                        <span class="front1">
+                            Subscribe
+                        </span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Enhanced Footer -->
+    <footer id="contact">
+        <div class="footer-container">
+            <div class="footer-section about">
+                <h2>About ExpenseVoid</h2>
+                <p>ExpenseVoid is your trusted partner in managing personal finances. With an intuitive interface and powerful features, we help you take control of your financial future.</p>
+            </div>
+            <div class="footer-section links">
+                <h2>Quick Links</h2>
+                <ul>
+                    <li><a href="#introduction">Home</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#tracker">Expense Tracker</a></li>
+                    <li><a href="#sources">Sources & Debts</a></li>
+                    <li><a href="#tips">Financial Tips</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section contact-form">
+                <h2>Contact Us</h2>
+                <form action="#" method="post">
+                    <input type="email" name="email" placeholder="Your email address">
+                    <textarea name="message" rows="4" placeholder="Your message"></textarea>
+                    <button type="submit" class="pushable1"><span class="front1">Send</span> </button>
+                </form>
+            </div>
+            <div class="footer-section social-media">
+                <h2>Follow Us</h2>
+                <ul class="social-icons">
+                    <li><a href="#"><img src="https://img.icons8.com/ios-filled/24/ffffff/facebook--v1.png" alt="Facebook"></a></li>
+                    <li><a href="#"><img src="https://img.icons8.com/ios-filled/24/ffffff/twitter.png" alt="Twitter"></a></li>
+                    <li><a href="#"><img src="https://img.icons8.com/ios-filled/24/ffffff/instagram-new.png" alt="Instagram"></a></li>
+                    <li><a href="#"><img src="https://img.icons8.com/ios-filled/24/ffffff/linkedin.png" alt="LinkedIn"></a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 ExpenseVoid | Designed for smarter expense management</p>
+        </div>
+    </footer>
+
+</body>
+@code {
+
+}

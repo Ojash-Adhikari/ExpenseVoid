@@ -14,6 +14,7 @@ namespace ExpenseVoid.Interface
         Task RemoveProfileAsync(Profile profile);
         Task EditProfileAsync(Profile profile);
         Task<List<Profile>> LoadProfilesAsync();
+        Task<List<Profile>> GetProfileByUserIdAsync(Guid userId);
 
     }
 }

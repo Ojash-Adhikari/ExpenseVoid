@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 
 namespace ExpenseVoid.Services
 {
@@ -243,6 +245,62 @@ namespace ExpenseVoid.Services
         }
 
 
+        public async Task SaveTransactionsToExcelAsync(string filePath)
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            try
+            {
+                var transactions = await LoadTransactionAsync();
+                if (transactions == null || !transactions.Any())
+                {
+                    Console.WriteLine("No transactions available to export.");
+                    return;
+                }
+
+                using var package = new ExcelPackage();
+                var worksheet = package.Workbook.Worksheets.Add("Transactions");
+
+                // Add headers
+                worksheet.Cells[1, 1].Value = "Transaction ID";
+                worksheet.Cells[1, 2].Value = "Name";
+                worksheet.Cells[1, 3].Value = "Amount";
+                worksheet.Cells[1, 4].Value = "Type";
+                worksheet.Cells[1, 5].Value = "Date";
+                worksheet.Cells[1, 6].Value = "Remarks";
+
+                // Style headers
+                using (var range = worksheet.Cells[1, 1, 1, 6])
+                {
+                    range.Style.Font.Bold = true;
+                    range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightBlue);
+                    range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                }
+
+                // Populate transaction data
+                for (int i = 0; i < transactions.Count; i++)
+                {
+                    var transaction = transactions[i];
+                    worksheet.Cells[i + 2, 1].Value = transaction.TransactionID.ToString();
+                    worksheet.Cells[i + 2, 2].Value = transaction.TransactionName;
+                    worksheet.Cells[i + 2, 3].Value = transaction.TransactionAmount;
+                    worksheet.Cells[i + 2, 4].Value = transaction.TransactionType?.Debit != null ? "Debit" : "Credit";
+                    worksheet.Cells[i + 2, 5].Value = transaction.TransactionDate.ToString();
+                    worksheet.Cells[i + 2, 6].Value = transaction.TransactionRemarks;
+                }
+
+                // Auto-fit columns
+                worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+                // Save the Excel file to the specified path
+                await File.WriteAllBytesAsync(filePath, package.GetAsByteArray());
+                Console.WriteLine($"Excel file saved successfully at {filePath}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving Excel file: {ex.Message}");
+            }
+        }
 
     }
 }
