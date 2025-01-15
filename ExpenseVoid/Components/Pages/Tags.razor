@@ -41,6 +41,7 @@
                         <tr class="bg-gray-700 text-gray-300">
                             <th class="px-4 py-2">#</th>
                             <th class="px-4 py-2">Tag Name</th>
+                            <th class="px-4 py-2">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -54,6 +55,15 @@
 
                                     <!-- Tag Name -->
                                     <td class="px-4 py-2" style="color: @tag.Tag.TagColor">@tag.Tag.TagName</td>
+                                    <td class="px-4 py-2">
+
+                                        <!-- Remove Debt Button -->
+                                        <button class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600"
+                                                title="Remove Debt"
+                                                @onclick="() => HandleRemoveTags(tag.Tag)">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </td>
                                 </tr>
                             }
                         }
@@ -115,7 +125,6 @@
 </body>
 
 
-
 @code {
     private Tag newTag = new();
     private string selectedTransactionType;
@@ -172,6 +181,22 @@
             }
         }
     }
+
+    private async Task HandleRemoveTags(Tag tags)
+    {
+        try
+        {
+            await tagService.RemoveTagAsync(tags);
+            await OnInitializedAsync();
+            Console.WriteLine($"Tag with ID {tags.TagId} removed successfully.");
+        }
+        catch (Exception ex)
+        {
+            
+            Console.WriteLine($"Error removing Transaction: {ex.Message}");
+        }
+    }
+
     private async Task HandleAddTag()
     {
         try

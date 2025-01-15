@@ -20,27 +20,13 @@
 <link rel="stylesheet" href="css/sidebar.css" />
 <link rel="stylesheet" href="css/Vanta.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+<link rel="stylesheet" href="css/ScrollTable.css" />
 
 @* JavaScript Imports *@
 <script src="js/sidebar.js"></script>
 <script src="js/Vanta.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <h3>Transactions</h3>
-
-<style>
-    .card {
-        width: 350px;
-        background-color: rgba(24, 24, 27, 0.8);
-        border-radius: 1rem;
-        margin-top: 20px;
-        margin-left: 20px;
-    }
-
-    .semi-transparent {
-        background-color: rgba(24, 24, 27, 0.6);
-    }
-</style>
 
 <body class="bg-gray-900 text-white">
     <div id="vanta-bg" class="flex flex-col md:flex-row gap-4 p-4">
@@ -94,7 +80,7 @@
                 </div>
 
                 <!-- Filtered Transactions Table -->
-                <div>
+                <div class="scrollable-container">
                     <table class="table-auto w-full text-left bg-gray-800 rounded-lg shadow-lg">
                         <thead>
                             <tr class="bg-gray-700 text-gray-300">
@@ -104,6 +90,7 @@
                                 <th class="px-4 py-2">Type</th>
                                 <th class="px-4 py-2">Tag</th>
                                 <th class="px-4 py-2">Date</th>
+                                <th class="px-4 py-2">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -120,6 +107,22 @@
                                         </td>
                                         <td class="px-4 py-2">@transaction.Transaction.Tag?.TagName</td>
                                         <td class="px-4 py-2">@transaction.Transaction.TransactionDate?.ToString("yyyy-MM-dd")</td>
+                                        <td class="px-4 py-2">
+
+                                            <!-- Edit Debt Button -->
+                                            <button class="bg-blue-500 text-white px-3 py-1 rounded-lg mr-2 hover:bg-blue-600"
+                                                    title="Edit Debt"
+                                                    @onclick="() => HandleEditTransaction(transaction.Transaction)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+
+                                            <!-- Remove Debt Button -->
+                                            <button class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600"
+                                                    title="Remove Debt"
+                                                    @onclick="() => HandleRemoveTransaction(transaction.Transaction)">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
                                     </tr>
                                 }
                             }
@@ -192,17 +195,82 @@
                     {
                         <p class="text-green-500 mt-4">Transaction added successfully!</p>
                     }
-                    @if (!string.IsNullOrEmpty(errorMessage))
-                    {
-                        <p class="text-red-500 mt-4">@errorMessage</p>
-                    }
+       
                 </div>
             </div>
             
         </div>
     </div>
-</body>
+    @if (IsEditModalVisible)
+    {
+        <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div class="bg-gray-800 rounded-lg shadow-lg p-6 w-1/2">
+                <h2 class="text-xl font-bold text-gray-300 mb-4">Edit Transaction</h2>
 
+                <EditForm Model="@SelectedTransaction" OnValidSubmit="SaveEditedDebt">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Transaction Name</label>
+                            <InputText @bind-Value="SelectedTransaction.TransactionName" class="w-full p-2 rounded bg-gray-700" />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Amount</label>
+                            <InputNumber @bind-Value="SelectedTransaction.TransactionAmount" class="w-full p-2 rounded bg-gray-700" />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Transaction Date</label>
+                            <InputDate @bind-Value="SelectedTransaction.TransactionDate" class="w-full p-2 rounded bg-gray-700" />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Tag</label>
+                            <InputSelect @bind-Value="selectedTagId" class="w-full p-2 rounded bg-gray-700">
+                                <option value="">Select a Tag</option>
+                                @foreach (var tag in tags)
+                                {
+                                    <option value="@tag.TagId">@tag.TagName</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Transaction Type</label>
+                            <InputSelect @bind-Value="transactionType" class="w-full p-2 rounded bg-gray-700">
+                                <option value="">Select Type</option>
+                                <option value="Credit">Credit</option>
+                                <option value="Debit">Debit</option>
+                            </InputSelect>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Transaction Color</label>
+                            <input type="color" @bind="SelectedTransaction.TransactionColor" class="w-full p-2 rounded bg-gray-700" style="height: 40px;" />
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end mt-4">
+                        <button type="button" class="bg-red-500 text-white px-4 py-2 rounded-lg mr-2 hover:bg-red-600"
+                                @onclick="() => IsEditModalVisible = false">
+                            Cancel
+                        </button>
+                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                            Save
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    }
+
+</body>
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <ToastALL ErrorMessageTransaction="@errorMessage"/>
+}
 
 @code {
     private bool vantaInitialized;
@@ -223,6 +291,8 @@
     private string amountSort = string.Empty;
     private DateTime? startDate = null;
     private DateTime? endDate = null;
+    private Transaction SelectedTransaction { get; set; }
+    private bool IsEditModalVisible { get; set; }
 
     private IEnumerable<Transaction> filteredTransactions
     {
@@ -263,7 +333,7 @@
             }
             else
             {
-                errorMessage = " User not found.";
+                errorMessage = "User not found.";
                 return;
             }
         }
@@ -272,6 +342,8 @@
             errorMessage = $"Failed to load users: {ex.Message}";
         }
     }
+
+
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -299,7 +371,19 @@
         }
     }
 
-
+    private async Task HandleRemoveTransaction(Transaction transaction)
+    {
+        try
+        {
+            await transactionService.RemoveTransactionAsync(transaction);
+            await OnInitializedAsync();
+            Console.WriteLine($"Transaction with ID {transaction.TransactionID} removed successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error removing Transaction: {ex.Message}");
+        }
+    }
 
     private async Task HandleTransactionSubmit()
     {
@@ -316,6 +400,12 @@
 
             transaction.User = user;
             transaction.Tag = tag;
+
+            if(transaction.Tag == null)
+            {
+                errorMessage = "Tags are required to add Transaction!";
+                return;
+            }
 
             if (transaction.TransactionType == null)
             {
@@ -349,11 +439,70 @@
                 };
             selectedTagId = Guid.Empty;
             transactionType = null;
+
+            await OnInitializedAsync();
         }
         catch (Exception ex)
         {
             errorMessage = $"Failed to add transaction: {ex.Message}";
             isSuccess = false;
+        }
+    }
+    //edit Transaction data
+    private async Task HandleEditTransaction(Transaction transaction)
+    {
+        // Set the selected debt and show the edit modal
+        SelectedTransaction = new Transaction
+            {
+                TransactionID = transaction.TransactionID,
+                User = currentUser,
+                Tag = transaction.Tag,
+                TransactionAmount = transaction.TransactionAmount,
+                TransactionName = transaction.TransactionName,
+                TransactionType = transaction.TransactionType,
+                TransactionDate = transaction.TransactionDate,
+                TransactionColor = transaction.TransactionColor,
+                
+            };
+
+        IsEditModalVisible = true;
+    }
+
+    private async Task SaveEditedDebt()
+    {
+        var selectedTag = tags.FirstOrDefault(s => s.TagId == selectedTagId);
+
+        if (transactionType == "Credit")
+        {
+            SelectedTransaction.TransactionType = new TransactionType
+                {
+                    Credit = SelectedTransaction.TransactionAmount,
+                    Debit = null
+                };
+        }
+        else if (transactionType == "Debit")
+        {
+            SelectedTransaction.TransactionType = new TransactionType
+                {
+                    Debit = SelectedTransaction.TransactionAmount,
+                    Credit = null
+                };
+        }
+
+        if (selectedTag != null)
+        {
+            SelectedTransaction.Tag = selectedTag;
+
+            // Save updated transaction
+            await transactionService.EditTransactionAsync(SelectedTransaction);
+            IsEditModalVisible = false;
+
+            // Reload data or update the UI
+            await OnInitializedAsync();
+        }
+        else
+        {
+            Console.WriteLine("Tag not found");
         }
     }
 

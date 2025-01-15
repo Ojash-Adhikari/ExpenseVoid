@@ -141,6 +141,7 @@ namespace ExpenseVoid.Services
         {
             try
             {
+                
                 var debts = await LoadDebtAsync();
                 return debts.Where(d => d.User?.UserID == userId).ToList();
             }

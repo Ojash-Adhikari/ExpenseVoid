@@ -19,27 +19,13 @@
 <link rel="stylesheet" href="css/sidebar.css" />
 <link rel="stylesheet" href="css/Vanta.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+<link rel="stylesheet" href="css/ScrollTable.css"/>
 
 @* JavaScript Imports *@
 <script src="js/sidebar.js"></script>
 <script src="js/Vanta.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <h3>Debts</h3>
-
-<style>
-    .card {
-        width: 350px;
-        background-color: rgba(24, 24, 27, 0.8);
-        border-radius: 1rem;
-        margin-top: 20px;
-        margin-left: 20px;
-    }
-
-    .semi-transparent {
-        background-color: rgba(24, 24, 27, 0.6);
-    }
-</style>
 
 <body class="bg-gray-900 text-white">
     <div id="vanta-bg" class="flex flex-col md:flex-row gap-4 p-4">
@@ -101,66 +87,69 @@
                 </div>
 
                 <!-- Filtered Debts Table -->
-                <div>
-                    <table class="table-auto w-full text-left bg-gray-800 rounded-lg shadow-lg">
-                        <thead>
-                            <tr class="bg-gray-700 text-gray-300">
-                                <th class="px-4 py-2">#</th>
-                                <th class="px-4 py-2">Source</th>
-                                <th class="px-4 py-2">Amount</th>
-                                <th class="px-4 py-2">Borrowed Date</th>
-                                <th class="px-4 py-2">Due Date</th>
-                                <th class="px-4 py-2">Status</th>
-                                <th class="px-4 py-2">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (filteredDebts.Any())
-                            {
-                                @foreach (var debt in filteredDebts.Select((d, index) => new { Debt = d, Index = index + 1 }))
+                <div class="scrollable-table">
+                    <div class="scrollable-container">
+                        <table class="table-auto w-full text-left bg-gray-800 rounded-lg shadow-lg">
+                            <thead>
+                                <tr class="bg-gray-700 text-gray-300">
+                                    <th class="px-4 py-2">#</th>
+                                    <th class="px-4 py-2">Source</th>
+                                    <th class="px-4 py-2">Amount</th>
+                                    <th class="px-4 py-2">Borrowed Date</th>
+                                    <th class="px-4 py-2">Due Date</th>
+                                    <th class="px-4 py-2">Status</th>
+                                    <th class="px-4 py-2">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (filteredDebts.Any())
                                 {
-                                    <tr class="border-b border-gray-700 hover:bg-gray-700">
-                                        <td class="px-4 py-2">@debt.Index</td>
-                                        <td class="px-4 py-2" style="color: @debt.Debt.DebtColor">@debt.Debt.Source?.Name</td>
-                                        <td class="px-4 py-2" style="color: @debt.Debt.DebtColor">@debt.Debt.Amount</td>
-                                        <td class="px-4 py-2" style="color: @debt.Debt.DebtColor">@debt.Debt.BorrowedDate?.ToString("yyyy-MM-dd")</td>
-                                        <td class="px-4 py-2" style="color: @debt.Debt.DebtColor">@debt.Debt.DueDate?.ToString("yyyy-MM-dd")</td>
-                                        <td class="px-4 py-2">@(debt.Debt.IsCleared == true ? "Cleared" : "Pending")</td>
-                                        <td class="px-4 py-2">
-                                            <!-- Clear Debt Button -->
-                                            <button class="bg-green-500 text-white px-3 py-1 rounded-lg mr-2 hover:bg-green-600"
-                                                    title="Clear Debt"
-                                                    @onclick="() => HandleClearDebt(debt.Debt)">
-                                                <i class="fas fa-check"></i>
-                                            </button>
+                                    @foreach (var debt in filteredDebts.Select((d, index) => new { Debt = d, Index = index + 1 }))
+                                    {
+                                        <tr class="border-b border-gray-700 hover:bg-gray-700">
+                                            <td class="px-4 py-2">@debt.Index</td>
+                                            <td class="px-4 py-2" style="color: @debt.Debt.DebtColor">@debt.Debt.Source?.Name</td>
+                                            <td class="px-4 py-2" style="color: @debt.Debt.DebtColor">@debt.Debt.Amount</td>
+                                            <td class="px-4 py-2" style="color: @debt.Debt.DebtColor">@debt.Debt.BorrowedDate?.ToString("yyyy-MM-dd")</td>
+                                            <td class="px-4 py-2" style="color: @debt.Debt.DebtColor">@debt.Debt.DueDate?.ToString("yyyy-MM-dd")</td>
+                                            <td class="px-4 py-2">@(debt.Debt.IsCleared == true ? "Cleared" : "Pending")</td>
+                                            <td class="px-4 py-2">
+                                                <!-- Clear Debt Button -->
+                                                <button class="bg-green-500 text-white px-3 py-1 rounded-lg mr-2 hover:bg-green-600"
+                                                        title="Clear Debt"
+                                                        @onclick="() => HandleClearDebt(debt.Debt)">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
 
-                                            <!-- Edit Debt Button -->
-                                            <button class="bg-blue-500 text-white px-3 py-1 rounded-lg mr-2 hover:bg-blue-600"
-                                                    title="Edit Debt"
-                                                    @onclick="() => HandleEditDebt(debt.Debt)">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
+                                                <!-- Edit Debt Button -->
+                                                <button class="bg-blue-500 text-white px-3 py-1 rounded-lg mr-2 hover:bg-blue-600"
+                                                        title="Edit Debt"
+                                                        @onclick="() => HandleEditDebt(debt.Debt)">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
 
-                                            <!-- Remove Debt Button -->
-                                            <button class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600"
-                                                    title="Remove Debt"
-                                                    @onclick="() => HandleRemoveDebt(debt.Debt)">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                        </td>
+                                                <!-- Remove Debt Button -->
+                                                <button class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600"
+                                                        title="Remove Debt"
+                                                        @onclick="() => HandleRemoveDebt(debt.Debt)">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td class="px-4 py-2 text-center text-gray-400" colspan="7">No debts match the filters.</td>
                                     </tr>
                                 }
-                            }
-                            else
-                            {
-                                <tr>
-                                    <td class="px-4 py-2 text-center text-gray-400" colspan="7">No debts match the filters.</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+                
+
             </div>
 
             <!-- Form Section -->
@@ -213,6 +202,69 @@
 
         </div>
     </div>
+    @if (IsEditModalVisible)
+    {
+        <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div class="bg-gray-800 rounded-lg shadow-lg p-6 w-1/2">
+                <h2 class="text-xl font-bold text-gray-300 mb-4">Edit Debt</h2>
+
+                <EditForm Model="@SelectedDebt" OnValidSubmit="SaveEditedDebt">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Source</label>
+                            <InputSelect @bind-Value="selectedSourceId" class="w-full p-2 rounded bg-gray-700">
+                                <option value="">Select a Source</option>
+                                @foreach (var source in sourceList)
+                                {
+                                    <option value="@source.SourceId">@source.Name</option>
+                                }
+                            </InputSelect>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Amount</label>
+                            <InputNumber @bind-Value="SelectedDebt.Amount" class="w-full p-2 rounded bg-gray-700" />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Borrowed Date</label>
+                            <InputDate @bind-Value="SelectedDebt.BorrowedDate" class="w-full p-2 rounded bg-gray-700" />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Due Date</label>
+                            <InputDate @bind-Value="SelectedDebt.DueDate" class="w-full p-2 rounded bg-gray-700" />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Notes</label>
+                            <InputTextArea @bind-Value="SelectedDebt.Notes" class="w-full rounded bg-gray-700" />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Debt Color</label>
+                            <input type="color" @bind="SelectedDebt.DebtColor" class="w-full p-2 rounded bg-gray-700" style="height: 40px;" />
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end mt-4">
+                        <button type="button" class="bg-red-500 text-white px-4 py-2 rounded-lg mr-2 hover:bg-red-600"
+                                @onclick="() => IsEditModalVisible = false">
+                            Cancel
+                        </button>
+                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                            Save
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    }
+
+
 </body>
 @if (!string.IsNullOrEmpty(errorMessage))
 {
@@ -239,6 +291,45 @@
     private string amountSort = string.Empty;
     private DateTime? startDate = null;
     private DateTime? endDate = null;
+    private Debt SelectedDebt { get; set; }
+    private bool IsEditModalVisible { get; set; }
+
+    private async Task HandleEditDebt(Debt debt)
+    {
+        // Set the selected debt and show the edit modal
+        SelectedDebt = new Debt
+            {
+                DebtId = debt.DebtId,
+                Source = debt.Source,
+                Amount = debt.Amount,
+                BorrowedDate = debt.BorrowedDate,
+                DueDate = debt.DueDate,
+                ReceivedDate = debt.ReceivedDate,
+                IsCleared = debt.IsCleared,
+                Notes = debt.Notes,
+                DebtColor = debt.DebtColor
+            };
+
+        IsEditModalVisible = true;
+    }
+
+    private async Task SaveEditedDebt()
+    {
+        var selectedSource = sourceList.FirstOrDefault(s => s.SourceId == selectedSourceId);
+        if (selectedSource != null)
+        {
+            SelectedDebt.Source = selectedSource;
+            await debtService.EditDebtAsync(SelectedDebt);
+            IsEditModalVisible = false;
+
+            // Reload data or update the UI
+            await OnInitializedAsync();
+        }
+        else
+        {
+            Console.WriteLine("Source not found");
+        }
+    }
 
     private IEnumerable<Debt> filteredDebts
     {
@@ -304,6 +395,11 @@
             errorMessage = "Debt has been cleared! Good Job";
             return;
         }
+        if(debt.Amount > currentUser.Balance)
+        {
+            errorMessage = "Debt cannot be cleared, Reason: Insufficient Balance";
+            return;
+        }
 
         try
         {
@@ -319,16 +415,18 @@
         }
     }
 
-    private async Task HandleEditDebt(Debt debt)
-    {
 
-    }
     private async Task HandleRemoveDebt(Debt debt)
     {
         try
         {
+            if(debt.IsCleared == false)
+            {
+                errorMessage = $"Pending Debts cannot be cleared, No!";
+                return;
+            }
             await debtService.RemoveDebtAsync(debt);
-            OnInitializedAsync();
+            await OnInitializedAsync();
             Console.WriteLine($"Debt with ID {debt.DebtId} removed successfully.");
         }
         catch (Exception ex)

@@ -14,11 +14,27 @@ namespace ExpenseVoid.Services
     public class TagService : ITag
     {
         private readonly string tagFilePath = Path.Combine(AppContext.BaseDirectory, "ExpenseVoid", "Tags&Source", "TagDetails.json");
+
+        private readonly List<Tag> permanentTags = new List<Tag>
+        {
+            new Tag { TagId = Guid.NewGuid(), TagName = "Yearly", TagColor = "#FF5733" },
+            new Tag { TagId = Guid.NewGuid(), TagName = "Monthly", TagColor = "#33FF57" },
+            new Tag { TagId = Guid.NewGuid(), TagName = "Food", TagColor = "#3357FF" },
+            new Tag { TagId = Guid.NewGuid(), TagName = "Drinks", TagColor = "#FFC300" },
+            new Tag { TagId = Guid.NewGuid(), TagName = "Clothes", TagColor = "#DAF7A6" },
+            new Tag { TagId = Guid.NewGuid(), TagName = "Gadgets", TagColor = "#581845" },
+            new Tag { TagId = Guid.NewGuid(), TagName = "Miscellaneous", TagColor = "#900C3F" },
+            new Tag { TagId = Guid.NewGuid(), TagName = "Fuel", TagColor = "#C70039" },
+            new Tag { TagId = Guid.NewGuid(), TagName = "Rent", TagColor = "#FF5733" },
+            new Tag { TagId = Guid.NewGuid(), TagName = "EMI", TagColor = "#FFC300" },
+            new Tag { TagId = Guid.NewGuid(), TagName = "Party", TagColor = "#DAF7A6" }
+        };
+
         public async Task SaveTagAsync(Tag tag)
         {
             try
             {
-                if(tag.TagId == Guid.Empty)
+                if (tag.TagId == Guid.Empty)
                 {
                     tag.TagId = Guid.NewGuid();
                 }
@@ -27,8 +43,8 @@ namespace ExpenseVoid.Services
                 await SaveTagsAsync(tags);
             }
             catch (Exception ex)
-            { 
-                Console.WriteLine($"Error saving user: {ex.Message}");
+            {
+                Console.WriteLine($"Error saving tag: {ex.Message}");
                 throw;
             }
         }
@@ -37,17 +53,11 @@ namespace ExpenseVoid.Services
             try
             {
                 var json = JsonSerializer.Serialize(tags, new JsonSerializerOptions { WriteIndented = true });
-
                 await File.WriteAllTextAsync(tagFilePath, json);
-            }
-            catch (IOException ioEx)
-            {
-                Console.WriteLine($"I/O error while loading tags: {ioEx.Message}");
-                throw;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Unexpected error while saving tags: {ex.Message}");
+                Console.WriteLine($"Error saving tags: {ex.Message}");
                 throw;
             }
         }
@@ -86,49 +96,60 @@ namespace ExpenseVoid.Services
         {
             try
             {
+                // Check if file exists
                 if (!File.Exists(tagFilePath))
                 {
-                    return new List<Tag>();
+                    // Save permanent tags if file does not exist
+                    await SaveTagsAsync(permanentTags);
+                    return permanentTags;
                 }
 
+                // Load existing tags
                 var json = await File.ReadAllTextAsync(tagFilePath);
-                return JsonSerializer.Deserialize<List<Tag>>(json) ?? new List<Tag>();
-            }
-            catch (JsonException jsonEx)
-            {
-                Console.WriteLine($"JSON deserialization error: {jsonEx.Message}");
-                return new List<Tag>();
-            }
-            catch (IOException ioEx)
-            {
-                Console.WriteLine($"I/O error while loading users: {ioEx.Message}");
-                return new List<Tag>();
+                var tags = JsonSerializer.Deserialize<List<Tag>>(json) ?? new List<Tag>();
+
+                // Ensure permanent tags are added
+                foreach (var permanentTag in permanentTags)
+                {
+                    if (!tags.Any(t => t.TagName == permanentTag.TagName))
+                    {
+                        tags.Add(permanentTag);
+                    }
+                }
+
+                // Save updated tags list
+                await SaveTagsAsync(tags);
+
+                return tags;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Unexpected error while loading users: {ex.Message}");
+                Console.WriteLine($"Error loading tags: {ex.Message}");
                 return new List<Tag>();
             }
         }
+
 
         public async Task RemoveTagAsync(Tag tag)
         {
             try
             {
                 var tags = await LoadTagsAsync();
-                var tagToRemove = tags.FirstOrDefault(u => u.TagId == tag.TagId);
+                var tagToRemove = tags.FirstOrDefault(t => t.TagId == tag.TagId);
 
-                if (tagToRemove != null)
+                if (tagToRemove != null && !permanentTags.Any(pt => pt.TagName == tagToRemove.TagName))
                 {
                     tags.Remove(tagToRemove);
-
-
                     await SaveTagsAsync(tags);
+                }
+                else
+                {
+                    Console.WriteLine("Cannot remove permanent tag.");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Tag Not Removed: {ex.Message}");
+                Console.WriteLine($"Error removing tag: {ex.Message}");
                 throw;
             }
         }

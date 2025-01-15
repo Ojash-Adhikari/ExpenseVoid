@@ -446,7 +446,7 @@
             TotalExpenses = allTransactions.Sum(t => t.TransactionType?.Debit ?? 0);
             Savings = TotalIncome - TotalExpenses;
             TotalTransactionBalance = TotalIncome + TotalExpenses;
-            AvgTransactionBalace = TotalTransactionBalance / 12;
+            AvgTransactionBalace = Math.Round(TotalTransactionBalance / 12, 2);
             TotalDebts = allDebts.Sum(d => d.Amount);
 
         }

@@ -68,6 +68,7 @@
 
     <ItemGroup>
       <_ContentIncludedByDefault Remove="Components\Pages\Finance.razor" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\ScrollTable.css" />
       <_ContentIncludedByDefault Remove="wwwroot\css\Verification.css" />
     </ItemGroup>
 

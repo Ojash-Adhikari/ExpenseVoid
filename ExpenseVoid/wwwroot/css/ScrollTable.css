@@ -1,0 +1,52 @@
+﻿.card {
+    width: 350px;
+    background-color: rgba(24, 24, 27, 0.8);
+    border-radius: 1rem;
+    margin-top: 20px;
+    margin-left: 20px;
+}
+
+.semi-transparent {
+    background-color: rgba(24, 24, 27, 0.6);
+}
+
+.scrollable-table {
+    position: relative;
+    width: 100%;
+}
+
+.scrollable-container {
+    max-height: 300px; /* Adjust this height based on your design */
+    overflow-y: auto; /* Enables vertical scrolling */
+    padding-right: 5px; /* Optional: Adds space for scrollbar */
+}
+
+    /* Optional: Customize scrollbar appearance */
+    .scrollable-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .scrollable-container::-webkit-scrollbar-thumb {
+        background-color: #f1c40f; /* Scrollbar thumb color */
+        border-radius: 3px;
+    }
+
+        .scrollable-container::-webkit-scrollbar-thumb:hover {
+            background-color: #cccc21; /* Thumb hover color */
+        }
+
+.fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 50;
+}
+
+.inset-0 {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}

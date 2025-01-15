@@ -57,30 +57,60 @@ namespace ExpenseVoid.Services
             try
             {
                 var transactions = await LoadTransactionAsync();
-                var exisitingTransactions = transactions.FirstOrDefault(u => u.TransactionID == transaction.TransactionID);
-                if (exisitingTransactions != null)
-                {
-                    exisitingTransactions.Tag = exisitingTransactions.Tag;
-                    exisitingTransactions.TransactionAmount = transaction.TransactionAmount;
-                    exisitingTransactions.TransactionName = transaction.TransactionName;
-                    exisitingTransactions.TransactionRemarks = transaction.TransactionRemarks;
-                    exisitingTransactions.TransactionType = transaction.TransactionType;
-                    exisitingTransactions.TransactionDate = transaction.TransactionDate;
-                    exisitingTransactions.TransactionColor = transaction.TransactionColor;
+                var existingTransaction = transactions.FirstOrDefault(t => t.TransactionID == transaction.TransactionID);
 
-                    await SaveTransactionsAsync(transactions);
-                }
-                else
+                if (existingTransaction == null)
                 {
-                    throw new Exception("Target Not Found");
+                    throw new Exception($"Transaction with ID {transaction.TransactionID} not found.");
                 }
 
+                var users = await LoadUsersAsync();
+                var userToUpdate = users.FirstOrDefault(u => u.UserID == transaction.User.UserID);
+
+                if (userToUpdate == null)
+                {
+                    throw new Exception($"User with ID {transaction.User.UserID} not found.");
+                }
+
+                // Revert previous balance
+                if (existingTransaction.TransactionType?.Debit.HasValue == true)
+                {
+                    userToUpdate.Balance += existingTransaction.TransactionType.Debit.Value;
+                }
+                else if (existingTransaction.TransactionType?.Credit.HasValue == true)
+                {
+                    userToUpdate.Balance -= existingTransaction.TransactionType.Credit.Value;
+                }
+
+                // Update transaction details
+                existingTransaction.Tag = transaction.Tag;
+                existingTransaction.TransactionAmount = transaction.TransactionAmount;
+                existingTransaction.TransactionName = transaction.TransactionName;
+                existingTransaction.TransactionRemarks = transaction.TransactionRemarks;
+                existingTransaction.TransactionType = transaction.TransactionType;
+                existingTransaction.TransactionDate = transaction.TransactionDate;
+                existingTransaction.TransactionColor = transaction.TransactionColor;
+
+                // Apply new balance
+                if (transaction.TransactionType?.Debit.HasValue == true)
+                {
+                    userToUpdate.Balance -= transaction.TransactionType.Debit.Value;
+                }
+                else if (transaction.TransactionType?.Credit.HasValue == true)
+                {
+                    userToUpdate.Balance += transaction.TransactionType.Credit.Value;
+                }
+
+                // Save updates
+                await SaveUsersAsync(users);
+                await SaveTransactionsAsync(transactions);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error Editing Target {ex.Message}");
+                Console.WriteLine($"Error Editing Transaction: {ex.Message}");
             }
         }
+
 
         public async Task<List<Transaction>> LoadTransactionAsync()
         {
