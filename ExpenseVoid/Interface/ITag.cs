@@ -15,5 +15,6 @@ namespace ExpenseVoid.Interface
         Task<List<Tag>> LoadTagsAsync(); // Read
 
         Task<List<Tag>> GetTagsByUserIdAsync(Guid userId);
+        Task<List<Tag>> GetTagsForUserAsync(Guid userId);
     }
 }

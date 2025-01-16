@@ -1,6 +1,8 @@
 ﻿@page "/NavMenu"
 @using Microsoft.JSInterop
+@using ExpenseVoid.Persistence
 @inject IJSRuntime JSRuntime
+@inject PreferencesStoreClone Storage
 @using Microsoft.AspNetCore.Components.Routing
 
 @* CSS Link *@
@@ -92,17 +94,23 @@
         <!-- LogOut -->
         <li class="item">
             <i class="fa fa-sign-out"></i>
-            <NavLink class="nav-link" href="/" @onclick="HandleClick">Logout</NavLink>
+            <NavLink class="nav-link" href="/" @onclick="clearUserStorage">Logout</NavLink>
         </li>
         <div id="action" class=""></div>
     </ul>
 </div>
 
 @code {
+
     private async Task HandleClick(MouseEventArgs args)
     {
         // Call JavaScript to reload the page
         await JSRuntime.InvokeVoidAsync("eval", "window.location.reload()");
+    }
+
+    private void clearUserStorage()
+    {
+        Storage.ClearAll();
     }
 
 }

@@ -326,9 +326,10 @@
             // Fetch all users
             // users = await userService.LoadUsersAsync();
             currentUser = await EmailToUserMap.GetUserByEmailAsync(Storage);
-            tags = await tagService.LoadTagsAsync();
+            
             if (currentUser != null)
             {
+                tags = await tagService.GetTagsForUserAsync(currentUser.UserID);
                 currentUserTransactions = await transactionService.GetTransactionsByUserIdAsync(currentUser.UserID);
             }
             else
@@ -411,7 +412,11 @@
             {
                 transaction.TransactionType = new TransactionType();
             }
-
+            if(transaction.TransactionAmount <= 0)
+            {
+                errorMessage = "Transaction Amount cannot be Less than 0!";
+                return;
+            }
             // Map transaction type
             if (transactionType == "Credit")
             {

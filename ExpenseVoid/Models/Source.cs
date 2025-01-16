@@ -8,11 +8,14 @@ namespace ExpenseVoid.Models
 {
     public class Source
     {
+       
         public Guid SourceId { get; set; } = Guid.NewGuid();
         public string? Name { get; set; }
         public string? Description { get; set; }
         public User? User { get; set; }
         public string? TransactionType { get; set; }
+
+        
 
     }
 }

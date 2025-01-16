@@ -168,5 +168,27 @@ namespace ExpenseVoid.Services
             }
         }
 
+        public async Task<List<Tag>> GetTagsForUserAsync(Guid userId)
+        {
+            try
+            {
+                // Fetch tags specific to the user
+                var userTags = await GetTagsByUserIdAsync(userId);
+
+                // Combine permanent tags with user-specific tags
+                var combinedTags = permanentTags
+                    .Concat(userTags)
+                    .GroupBy(tag => tag.TagId) // Ensure no duplicate TagId
+                    .Select(group => group.First())
+                    .ToList();
+
+                return combinedTags;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error Fetching Tags for userId {userId}: {ex.Message}");
+                throw;
+            }
+        }
     }
 }
