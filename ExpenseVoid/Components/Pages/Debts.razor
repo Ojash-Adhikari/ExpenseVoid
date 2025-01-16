@@ -450,7 +450,7 @@
             // Load debts if not already loaded
             if (currentUserDebts == null || !currentUserDebts.Any())
             {
-                currentUserDebts = await debtService.LoadDebtAsync();
+                currentUserDebts = await debtService.GetDebtByUserIdAsync(currentUser.UserID);
             }
 
             // Calculate the total debt

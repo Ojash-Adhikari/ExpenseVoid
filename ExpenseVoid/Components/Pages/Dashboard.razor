@@ -25,6 +25,10 @@
 <link rel="stylesheet" href="css/DashboardAddon.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+
 
 @* JavaScript Imports *@
 <script src="js/sidebar.js"></script>
@@ -181,6 +185,30 @@
     document.addEventListener('DOMContentLoaded', function () {
         initializeCharts();
     });
+    window.initializeDateRangePicker = () => {
+        const dotNetInstance = DotNet.createJSObjectReference({
+            SetDateRange: (start, end) => {
+                const startDate = new Date(start);
+                const endDate = new Date(end);
+                dotNetInstance.invokeMethodAsync("SetDateRange", startDate, endDate);
+            }
+        });
+
+        flatpickr("#dateRangePicker", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            onChange: function (selectedDates) {
+                if (selectedDates.length === 2) {
+                    dotNetInstance.invokeMethodAsync(
+                        "SetDateRange",
+                        selectedDates[0].toISOString(),
+                        selectedDates[1].toISOString()
+                    );
+                }
+            }
+        });
+    };
+
 </script>
 
 
@@ -195,11 +223,13 @@
         <div class="max-w-6xl grid p-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
                 <div class="card p-6 mb-[20px]">
-
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-White-400 text-sm font-medium mr-[17px]">Monthly Transactions</h2>
                         <div class="flex items-center gap-2">
-                            <span class="text-White-400 text-xs">Mar 1, 2023 - Jul 31, 2024</span>
+                            <input id="dateRangePicker" class="bg-gray-700 px-3 py-1 rounded text-White-400 text-xs w-16" />
+                            <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm" @onclick="FilterData">
+                                Apply
+                            </button>
                         </div>
                     </div>
                     <div class="mb-6">
@@ -209,6 +239,7 @@
                         <canvas id="expensesChart"></canvas>
                     </div>
                 </div>
+
                 <div class="card p-2">
                     <div class="card p-6 border-2 border-indigo-500">
                         <h2 class="text-white-400 mb-[20px] text-[#50d71e]">Top 5 Transactions <span class="text-green-500 text-xl">↗ </span></h2>
@@ -411,14 +442,25 @@
     private double? TotalDebts = 0;
     private double TotalTransactionBalance = 0;
     private double AvgTransactionBalace = 0;
+    private DateTime startDate = DateTime.Now.AddMonths(-1); // Default start date: 1 month ago
+    private DateTime endDate = DateTime.Now;
+    private DotNetObjectReference<Dashboard>? dotNetInstance;
+    [JSInvokable]
+    public void SetDateRange(DateTime start, DateTime end)
+    {
+        startDate = start;
+        endDate = end;
+        StateHasChanged(); // Update the UI
+    }
 
     protected override async Task OnInitializedAsync()
     {
         currentUser = await EmailToUserMap.GetUserByEmailAsync(Storage);
-
+        dotNetInstance = DotNetObjectReference.Create(this);
         if (currentUser != null)
         {
             Console.WriteLine($"Welcome, {currentUser.FirstName}!");
+
 
             // Fetch transactions for the current user
             var allTransactions = await transactionService.GetTransactionsByUserIdAsync(currentUser.UserID);
@@ -455,7 +497,38 @@
             Console.WriteLine("No user found or email is not set in storage.");
         }
     }
+    public void Dispose()
+    {
+        dotNetInstance?.Dispose();
+    }
+    private async Task FilterData()
+    {
+        var allTransactions = await transactionService.GetTransactionsByUserIdAsync(currentUser.UserID);
+        var allDebts = await debtService.GetDebtByUserIdAsync(currentUser.UserID);
+        // Filter transactions by date range
+        var filteredTransactions = allTransactions
+            .Where(t => t.TransactionDate >= startDate && t.TransactionDate <= endDate)
+            .ToList();
 
+        // Filter debts by date range
+        var filteredDebts = allDebts
+            .Where(d => d.BorrowedDate >= startDate && d.BorrowedDate <= endDate)
+            .ToList();
+
+        // Recalculate totals
+        TotalIncome = filteredTransactions.Sum(t => t.TransactionType?.Credit ?? 0);
+        TotalExpenses = filteredTransactions.Sum(t => t.TransactionType?.Debit ?? 0);
+        Savings = TotalIncome - TotalExpenses;
+        TotalTransactionBalance = TotalIncome + TotalExpenses;
+
+        // Calculate the average transaction balance for the selected date range
+        var months = ((endDate.Year - startDate.Year) * 12) + endDate.Month - startDate.Month + 1;
+        AvgTransactionBalace = months > 0 ? Math.Round(TotalTransactionBalance / months, 2) : 0;
+
+        TotalDebts = filteredDebts.Sum(d => d.Amount ?? 0);
+
+        StateHasChanged();
+    }
     private void NavigateToTransactions()
     {
         Navigation.NavigateTo("/Transactions");
@@ -477,10 +550,11 @@
 
                 // Ensure scripts are loaded
                 await JSRuntime.InvokeVoidAsync("loadVantaScripts");
-
+                
                 // Initialize Vanta.js
                 await JSRuntime.InvokeVoidAsync("initializeVanta");
                 await JSRuntime.InvokeVoidAsync("initializeCharts");
+                await JSRuntime.InvokeVoidAsync("initializeDateRangePicker");
 
                 // await JSRuntime.InvokeVoidAsync("loadSidebarJS");
 

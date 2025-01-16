@@ -60,6 +60,7 @@
 
     <ItemGroup>
       <Content Remove="Components\Pages\Finance.razor" />
+      <Content Remove="wwwroot\js\site.js" />
     </ItemGroup>
 
     <ItemGroup>
@@ -100,6 +101,7 @@
 
 	<ItemGroup>
 	  <None Include="Components\Pages\Finance.razor" />
+	  <None Include="wwwroot\js\site.js" />
 	</ItemGroup>
 
 </Project>
