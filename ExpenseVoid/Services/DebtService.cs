@@ -1,5 +1,7 @@
 ﻿using ExpenseVoid.Interface;
 using ExpenseVoid.Models;
+using OfficeOpenXml.Style;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -231,6 +233,63 @@ namespace ExpenseVoid.Services
             }
         }
 
+        //saving to excel
+        public async Task SaveDebtToExcelAsync(string filePath, Guid userId)
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            try
+            {
+                var debts = await GetDebtByUserIdAsync(userId);
+                if (debts == null || !debts.Any())
+                {
+                    Console.WriteLine("No Debts available to export.");
+                    return;
+                }
+
+                using var package = new ExcelPackage();
+                var worksheet = package.Workbook.Worksheets.Add("Debt");
+
+                // Add headers
+                worksheet.Cells[1, 1].Value = "Transaction ID";
+                worksheet.Cells[1, 2].Value = "Name";
+                worksheet.Cells[1, 3].Value = "Amount";
+                worksheet.Cells[1, 4].Value = "Type";
+                worksheet.Cells[1, 5].Value = "Date";
+                worksheet.Cells[1, 6].Value = "Remarks";
+
+                // Style headers
+                using (var range = worksheet.Cells[1, 1, 1, 6])
+                {
+                    range.Style.Font.Bold = true;
+                    range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightBlue);
+                    range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                }
+
+                // Populate transaction data
+                for (int i = 0; i < debts.Count; i++)
+                {
+                    var debt = debts[i];
+                    worksheet.Cells[i + 2, 1].Value = debt.DebtId.ToString();
+                    worksheet.Cells[i + 2, 2].Value = debt.User.UserName;
+                    worksheet.Cells[i + 2, 3].Value = debt.Source.Name;
+                    worksheet.Cells[i + 2, 4].Value = debt.IsCleared != null ? "Pending" : "Cleared";
+                    worksheet.Cells[i + 2, 5].Value = debt.BorrowedDate.ToString();
+                    worksheet.Cells[i + 2, 6].Value = debt.DueDate.ToString();
+                }
+
+                // Auto-fit columns
+                worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+                // Save the Excel file to the specified path
+                await File.WriteAllBytesAsync(filePath, package.GetAsByteArray());
+                Console.WriteLine($"Excel file saved successfully at {filePath}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving Excel file: {ex.Message}");
+            }
+        }
 
 
     }

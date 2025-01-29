@@ -365,7 +365,7 @@
                     <button type="submit" class="pushable1" @onclick="NavigateToDebts">
                         <span class="front1">Add Debt</span>
                     </button>
-                    <button type="button" class="pushable1" @onclick="SaveToExcel">
+                    <button type="button" class="pushable1" @onclick="SaveToExcelDebt">
                         <span class="front1">Download Debt</span>
                     </button>
                 </div>
@@ -610,5 +610,48 @@
             Console.WriteLine($"Error saving to Excel: {ex.Message}");
         }
     }
-    
+    private async Task SaveToExcelDebt()
+    {
+        try
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // Set EPPlus license context
+
+            var debtService = new DebtService();
+
+            // Get the Excel file path
+            var fileName = "Debts.xlsx";
+            var filePath = Path.Combine(FileSystem.AppDataDirectory, fileName);
+
+            // Ensure the directory exists
+            var directory = Path.GetDirectoryName(filePath);
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            // Save transactions to the Excel file
+            await debtService.SaveDebtToExcelAsync(filePath, currentUser.UserID);
+
+            // Read the file into a MemoryStream
+            var fileBytes = File.ReadAllBytes(filePath);
+            using var stream = new MemoryStream(fileBytes);
+
+            // Save the file using FileSaver
+            var result = await FileSaver.Default.SaveAsync(fileName, stream);
+
+            if (result.IsSuccessful)
+            {
+                Console.WriteLine($"File saved to {result.FilePath}");
+            }
+            else
+            {
+                Console.WriteLine("File save canceled or failed.");
+            }
+        }
+        catch (Exception ex)
+        {
+            errormessage = $"Error saving to Excel: {ex.Message}";
+            Console.WriteLine($"Error saving to Excel: {ex.Message}");
+        }
+    }
 }
