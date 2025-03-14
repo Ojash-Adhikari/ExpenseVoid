@@ -59,14 +59,31 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Content Remove="Components\Pages\Finance.razor" />
+      <Content Remove="wwwroot\js\site.js" />
+    </ItemGroup>
+
+    <ItemGroup>
       <None Remove="Resources\Fonts\Retro-Gaming.ttf" />
     </ItemGroup>
 
     <ItemGroup>
+      <_ContentIncludedByDefault Remove="Components\Pages\Finance.razor" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\ScrollTable.css" />
       <_ContentIncludedByDefault Remove="wwwroot\css\Verification.css" />
     </ItemGroup>
 
-    <ItemGroup>
+	<ItemGroup>
+		<Content Include="bin\Debug\net8.0-windows10.0.19041.0\win10-x64\AppX\ExpenseVoid\Transaction\Transaction.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<Link>wwwroot/ExpenseVoid/Transaction/Transaction.json</Link>
+		</Content>
+	</ItemGroup>
+
+
+	<ItemGroup>
+        <PackageReference Include="CommunityToolkit.Maui" Version="8.0.0" />
+        <PackageReference Include="EPPlus" Version="7.5.2" />
         <PackageReference Include="MailKit" Version="4.9.0" />
         <PackageReference Include="Microcharts.Maui" Version="1.0.0" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
@@ -75,5 +92,16 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
         <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.100" />
     </ItemGroup>
+
+
+	<ItemGroup>
+	  <UpToDateCheckInput Remove="Components\Pages\Finance.razor" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <None Include="Components\Pages\Finance.razor" />
+	  <None Include="wwwroot\js\site.js" />
+	</ItemGroup>
 
 </Project>

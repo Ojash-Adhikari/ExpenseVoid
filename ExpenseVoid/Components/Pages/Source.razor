@@ -3,11 +3,15 @@
 @using ExpenseVoid.Models
 @using ExpenseVoid.Services
 @using ExpenseVoid.Interface
+@using ExpenseVoid.Helper
+@using ExpenseVoid.Persistence
 
 @* Dependency Injection *@
 @inject IJSRuntime JSRuntime
 @inject ISource sourceService
 @inject ITransactionType transactionTypeService
+@inject EmailToUserMap EmailToUserMap
+@inject PreferencesStoreClone Storage
 @page "/Source"
 
 @* CSS link *@
@@ -78,6 +82,7 @@
     private string selectedTransactionType = "";
     private bool isSuccess = false;
     private string errorMessage = "";
+    private User? currentUser;
     private bool vantaInitialized;
     private string transactionType;
 
@@ -87,6 +92,15 @@
         {
             // Correct service to load transaction types
             transactionTypes = await transactionTypeService.LoadTransactionTypesAsync();
+            currentUser = await EmailToUserMap.GetUserByEmailAsync(Storage);
+            if (currentUser != null)
+            {
+                newSource.User = currentUser; // Assign the user to the new tag
+            }
+            else
+            {
+                errorMessage = "User Not Found";
+            }
         }
         catch (Exception ex)
         {
@@ -127,7 +141,7 @@
             // Map transaction type
             if (transactionType == "Credit")
             {
-                
+
                 newSource.TransactionType = transactionType;
 
             }
@@ -136,7 +150,7 @@
                 newSource.TransactionType = transactionType;
 
             }
-            
+
 
             // Save the new source using the service
             await sourceService.SaveSourceAsync(newSource);
@@ -144,7 +158,10 @@
             // Show success message and reset the form
             isSuccess = true;
             errorMessage = "";
-            newSource = new Models.Source();
+            newSource = new Models.Source
+            {
+                User = currentUser
+            };
             selectedTransactionType = "";
         }
         catch (Exception ex)

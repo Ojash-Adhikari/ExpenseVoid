@@ -16,18 +16,53 @@
         <div id="timer"></div>
     </section>
 }
+@if (!string.IsNullOrEmpty(ErrorMessageDebt))
+{
+    <section id="toast" class="error">
+        <div id="icon-wrapper">
+            <div id="icon"></div>
+        </div>
+        <div id="toast-message">
+            <h4>Debt Warning:</h4>
+            <p>@ErrorMessageDebt</p>
+        </div>
+        <button id="toast-close"></button>
+        <div id="timer"></div>
+    </section>
+}
+@if (!string.IsNullOrEmpty(ErrorMessageTransaction))
+{
+    <section id="toast" class="error">
+        <div id="icon-wrapper">
+            <div id="icon"></div>
+        </div>
+        <div id="toast-message">
+            <h4>Transaction Error:</h4>
+            <p>@ErrorMessageTransaction</p>
+        </div>
+        <button id="toast-close"></button>
+        <div id="timer"></div>
+    </section>
+}
+
 @code {
     [Parameter]
     public string? ErrorMessage { get; set; }
+    [Parameter]
+    public string? ErrorMessageDebt { get; set; }
+    [Parameter]
+    public string? ErrorMessageTransaction { get; set; }
+
     private bool toastInitialized = false;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!toastInitialized && !string.IsNullOrEmpty(ErrorMessage))
+        if (!toastInitialized && (!string.IsNullOrEmpty(ErrorMessage) || !string.IsNullOrEmpty(ErrorMessageDebt) || !string.IsNullOrEmpty(ErrorMessageTransaction)))
         {
             try
             {
                 await JSRuntime.InvokeVoidAsync("initializeToastified");
-                toastInitialized = true;
+                await JSRuntime.InvokeVoidAsync("showNewToast", "error");
             }
             catch (Exception ex)
             {

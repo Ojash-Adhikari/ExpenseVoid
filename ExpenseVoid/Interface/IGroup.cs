@@ -13,5 +13,6 @@ namespace ExpenseVoid.Interface
         Task RemoveGroupAsync(Group group);
         Task EditGroupAsync(Group group);
         Task<List<Group>> LoadGroupsAsync();
+        Task<List<Group>> GetGroupsByUserIdAsync(Guid userId);
     }
 }

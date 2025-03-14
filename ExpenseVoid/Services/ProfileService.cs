@@ -89,6 +89,18 @@ namespace ExpenseVoid.Services
             throw new NotImplementedException();
         }
 
-        
+        public async Task<List<Profile>> GetProfileByUserIdAsync(Guid userId)
+        {
+            try
+            {
+                var groups = await LoadProfilesAsync();
+                return groups.Where(t => t.User?.UserID == userId).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching Profile for user ID {userId}: {ex.Message}");
+                throw;
+            }
+        }
     }
 }

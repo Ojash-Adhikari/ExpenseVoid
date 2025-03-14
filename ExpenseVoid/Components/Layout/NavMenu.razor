@@ -1,16 +1,45 @@
 ﻿@page "/NavMenu"
 @using Microsoft.JSInterop
+@using ExpenseVoid.Persistence
 @inject IJSRuntime JSRuntime
+@inject PreferencesStoreClone Storage
 @using Microsoft.AspNetCore.Components.Routing
 
 @* CSS Link *@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
 <link rel="stylesheet" href="css/sidebar" />
 
+@* Internal CSS *@
+<style>
+    .logo {
+        color: #f1c40f;
+        font-size: 1.5em;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        z-index: 1100;
+        margin-right: auto;
+        margin-left:35px;
+        margin-bottom:20px;
+    }
+
+        .logo span {
+            color: #fff;
+        }
+
+        .logo:hover {
+            color: #fff;
+        }
+
+            .logo:hover span {
+                color: #f1c40f;
+            }
+</style>
+
 @* JavaScript Import *@
 <script src="js/sidebar.js"></script>
 
 <div class="menu">
+    <div class="logo">Expense<span>Void</span></div>
     <ul>
         <!-- Home -->
         <li class="item active">
@@ -26,6 +55,9 @@
             <ul>
                 <li>
                     <NavLink class="nav-link" href="/NewProfile" @onclick="HandleClick">Add Profile</NavLink>
+                </li>
+                <li>
+                    <NavLink class="nav-link" href="/NewGroup" @onclick="HandleClick">Add Group</NavLink>
                 </li>
                 <li>
                     <NavLink class="nav-link" href="/UserProfile" @onclick="HandleClick">User Profile</NavLink>
@@ -51,7 +83,7 @@
             <i class="fa-solid fa-tasks"></i> Debt <i class="fa-solid fa-chevron-down"></i>
             <ul>
                 <li>
-                    <NavLink class="nav-link" href="/Debt" @onclick="HandleClick">Debt</NavLink>
+                    <NavLink class="nav-link" href="/Debts" @onclick="HandleClick">Debt</NavLink>
                 </li>
                 <li>
                     <NavLink class="nav-link" href="/Source" @onclick="HandleClick">Source</NavLink>
@@ -62,17 +94,23 @@
         <!-- LogOut -->
         <li class="item">
             <i class="fa fa-sign-out"></i>
-            <NavLink class="nav-link" href="/" @onclick="HandleClick">Logout</NavLink>
+            <NavLink class="nav-link" href="/" @onclick="clearUserStorage">Logout</NavLink>
         </li>
         <div id="action" class=""></div>
     </ul>
 </div>
 
 @code {
+
     private async Task HandleClick(MouseEventArgs args)
     {
         // Call JavaScript to reload the page
         await JSRuntime.InvokeVoidAsync("eval", "window.location.reload()");
+    }
+
+    private void clearUserStorage()
+    {
+        Storage.ClearAll();
     }
 
 }

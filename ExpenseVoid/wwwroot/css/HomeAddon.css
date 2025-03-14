@@ -163,6 +163,29 @@ nav {
             background-color: hsl(340deg 100% 32%);
         }
 
+.nav-links-ext {
+    list-style: none;
+    display: flex;
+    align-items: center;
+}
+
+    .nav-links-ext li {
+        margin-left: 20px;
+    }
+
+    .nav-links-ext a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 0.9em;
+        transition: color 0.3s ease;
+        margin-bottom: 30px;
+        border-radius: 5px;
+    }
+
+        .nav-links-ext a:hover {
+            color: #a3e635;
+            background-color: hsl(340deg 100% 32%);
+        }
 /* Hamburger menu icon */
 .menu-icon {
     display: none;
@@ -961,3 +984,23 @@ footer {
         margin-top: 20px;
     }
 }
+
+.financial-links {
+    list-style-type: none; /* Removes default bullet points */
+    margin: 0;
+    padding: 0;
+    text-decoration:none;
+}
+
+    .financial-links li {
+        margin-bottom: 1rem; /* Space between list items */
+    }
+
+    .financial-links a {
+        color: #a3e635; /* Lime color */
+        transition: color 0.3s ease, text-decoration 0.3s ease; /* Smooth transitions */
+    }
+
+        .financial-links a:hover {
+            color: #84cc16; /* Slightly darker lime on hover */
+        }

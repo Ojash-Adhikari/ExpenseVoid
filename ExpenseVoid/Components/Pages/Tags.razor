@@ -16,6 +16,7 @@
 @* CSS link *@
 <link rel="stylesheet" href="css/sidebar.css" />
 <link rel="stylesheet" href="css/Vanta.css" />
+<link rel="stylesheet" href="css/TagAddon.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 
@@ -26,14 +27,58 @@
 
 <h3>Tags</h3>
 
-<body class="bg-gray-900 text-white">
-    <div id="vanta-bg" class="flex flex-col md:flex-row gap-4 p-4">
-        <!-- Sidebar / Navigation Menu -->
+<body class="bg-gray-900 ">
+    <div id="vanta-bg" class="flex flex-col md:flex-row gap-4 p-4 ">
         <div>
             <NavMenu />
         </div>
-        <div>
-            <div class="bg-gray-800 p-4 rounded shadow-lg max-w-lg">
+        <div class="text-white flex flex-col items-center">
+
+            <!-- Table Section -->
+            <div class="card p-6 shadow-lg w-full">
+                <table class="table-auto w-full text-left semi-transparent rounded-lg shadow-lg">
+                    <thead>
+                        <tr class="bg-gray-700 text-gray-300">
+                            <th class="px-4 py-2">#</th>
+                            <th class="px-4 py-2">Tag Name</th>
+                            <th class="px-4 py-2">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (currentUserTags.Any())
+                        {
+                            @foreach (var tag in currentUserTags.Select((t, index) => new { Tag = t, Index = index + 1 }))
+                            {
+                                <tr class="border-b border-gray-700 hover:bg-gray-700">
+                                    <!-- Index -->
+                                    <td class="px-4 py-2" style="color: @tag.Tag.TagColor">@tag.Index</td>
+
+                                    <!-- Tag Name -->
+                                    <td class="px-4 py-2" style="color: @tag.Tag.TagColor">@tag.Tag.TagName</td>
+                                    <td class="px-4 py-2">
+
+                                        <!-- Remove Debt Button -->
+                                        <button class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600"
+                                                title="Remove Debt"
+                                                @onclick="() => HandleRemoveTags(tag.Tag)">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td class="px-4 py-2 text-center text-gray-400" colspan="2">No tags available.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Form Section -->
+            <div class="card p-6 shadow-lg">
                 <EditForm Model="@newTag" OnValidSubmit="HandleAddTag">
                     <DataAnnotationsValidator />
                     <ValidationSummary />
@@ -60,7 +105,7 @@
                         <small class="text-gray-400">Enter a valid color code (e.g., #FF5733).</small>
                     </div>
 
-                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Add Tag</button>
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded w-full">Add Tag</button>
                 </EditForm>
 
                 @if (isSuccess)
@@ -72,7 +117,10 @@
                     <p class="text-red-500 mt-4">@errorMessage</p>
                 }
             </div>
+
+           
         </div>
+        
     </div>
 </body>
 
@@ -84,6 +132,28 @@
     private string errorMessage = "";
     private bool vantaInitialized;
     private User? currentUser;
+    private List<Tag> currentUserTags = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            currentUser = await EmailToUserMap.GetUserByEmailAsync(Storage);
+            if (currentUser != null)
+            {
+                newTag.User = currentUser; // Assign the user to the new tag
+                currentUserTags = await tagService.GetTagsByUserIdAsync(currentUser.UserID);
+            }
+            else
+            {
+                errorMessage = "User Not Found";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load users: {ex.Message}";
+        }
+    }
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -94,12 +164,6 @@
             {
                 vantaInitialized = true;
 
-
-                currentUser = await EmailToUserMap.GetUserByEmailAsync(Storage);
-                if (currentUser != null)
-                {
-                    newTag.User = currentUser; // Assign the user to the new tag
-                }
 
                 // Ensure scripts are loaded
                 await JSRuntime.InvokeVoidAsync("loadVantaScripts");
@@ -117,19 +181,39 @@
             }
         }
     }
+
+    private async Task HandleRemoveTags(Tag tags)
+    {
+        try
+        {
+            await tagService.RemoveTagAsync(tags);
+            await OnInitializedAsync();
+            Console.WriteLine($"Tag with ID {tags.TagId} removed successfully.");
+        }
+        catch (Exception ex)
+        {
+            
+            Console.WriteLine($"Error removing Transaction: {ex.Message}");
+        }
+    }
+
     private async Task HandleAddTag()
     {
         try
         {
-
             // Save the new tag using the service
             await tagService.SaveTagAsync(newTag);
+
+            // Reload the tag list to include the newly added tag
+            currentUserTags = await tagService.GetTagsByUserIdAsync(currentUser.UserID);
 
             // Show success message and reset the form
             isSuccess = true;
             errorMessage = "";
-            newTag = new Tag();
-            selectedTransactionType = "";
+            newTag = new Tag
+                {
+                    User = currentUser // Ensure the new tag is assigned the current user
+                };
         }
         catch (Exception ex)
         {
@@ -137,4 +221,5 @@
             errorMessage = $"Error adding tag: {ex.Message}";
         }
     }
+
 }

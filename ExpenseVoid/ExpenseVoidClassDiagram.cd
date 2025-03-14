@@ -1,0 +1,230 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="ExpenseVoid.Models.Currency">
+    <Position X="16" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAAAAAAIEAQAAAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>Models\Currency.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExpenseVoid.Models.Debt">
+    <Position X="0.5" Y="0.5" Width="2" />
+    <InheritanceLine Type="System.Object" ManuallyRouted="true">
+      <Path>
+        <Point X="10.125" Y="8.25" />
+        <Point X="10.125" Y="7.999" />
+        <Point X="1.5" Y="7.999" />
+        <Point X="1.5" Y="3.334" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAhAAAAAgAACCAAACAAAASAAAAAAAAAAQAAAAAAAAQ=</HashCode>
+      <FileName>Models\Debt.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExpenseVoid.Models.Group">
+    <Position X="12" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAQBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE=</HashCode>
+      <FileName>Models\Group.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExpenseVoid.Models.Profile">
+    <Position X="17.75" Y="0.5" Width="2" />
+    <InheritanceLine Type="System.Object" ManuallyRouted="true">
+      <Path>
+        <Point X="10.125" Y="8.25" />
+        <Point X="10.125" Y="7.988" />
+        <Point X="18.75" Y="7.988" />
+        <Point X="18.75" Y="2.373" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAABAEAAAAAAAAAAAAgAAAQAAAAAAAAAAAAAAAAAgAA=</HashCode>
+      <FileName>Models\Profile.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExpenseVoid.Models.Source">
+    <Position X="10" Y="0.5" Width="1.75" />
+    <InheritanceLine Type="System.Object" ManuallyRouted="true">
+      <Path>
+        <Point X="10.125" Y="8.25" />
+        <Point X="10.125" Y="6.862" />
+        <Point X="10.875" Y="6.862" />
+        <Point X="10.875" Y="2.373" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAAAgAAAAAAAAAARAAAAAAAEAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\Source.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExpenseVoid.Models.Tag">
+    <Position X="5" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAE=</HashCode>
+      <FileName>Models\Tag.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExpenseVoid.Models.Transaction">
+    <Position X="7.25" Y="0.5" Width="2.5" />
+    <InheritanceLine Type="System.Object" ManuallyRouted="true">
+      <Path>
+        <Point X="10.125" Y="8.25" />
+        <Point X="10.125" Y="6.907" />
+        <Point X="8.5" Y="6.907" />
+        <Point X="8.5" Y="3.142" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>EAABAAAAAAAgAAABAAAAAAAgAAAAAAMAAAIAEAAAAAA=</HashCode>
+      <FileName>Models\Transaction.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExpenseVoid.Models.TransactionType">
+    <Position X="14.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAABAAAAAAAAEAAAAAAgAAgAAAAAAAA=</HashCode>
+      <FileName>Models\TransactionType.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExpenseVoid.Models.User">
+    <Position X="2.75" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAACIAAACACAgAAAgACAAAABACAQAAIAAAAAg=</HashCode>
+      <FileName>Models\User.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="System.Object">
+    <Position X="9" Y="8.25" Width="2.25" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="ExpenseVoid.Services.DebtService">
+    <Position X="0.75" Y="11.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AEEAAAAAAAUAAAAAAAAAICAIAAgAAAQABEAAAAAAAAA=</HashCode>
+      <FileName>Services\DebtService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.221" />
+  </Class>
+  <Class Name="ExpenseVoid.Services.GroupService">
+    <Position X="7.5" Y="11.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAACAAAAAAAAAAAAgAAAAAEIACAAAAg=</HashCode>
+      <FileName>Services\GroupService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="ExpenseVoid.Services.ProfileService">
+    <Position X="14.25" Y="11.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAEAQQAAAAAEAAAAAAAQ=</HashCode>
+      <FileName>Services\ProfileService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="ExpenseVoid.Services.SourceService">
+    <Position X="3" Y="11.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQIAAAAQABBAAAAAABAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Services\SourceService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="ExpenseVoid.Services.TagService">
+    <Position X="9.75" Y="11.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAgBAEAAAAAAAAEAAAAAEAAAEAAAAAAABAAA=</HashCode>
+      <FileName>Services\TagService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="ExpenseVoid.Services.TransactionService">
+    <Position X="16.5" Y="11.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAEBAIAAAAECAAAAAAAAQCAAAACAACCAAAAAwAAAAAA=</HashCode>
+      <FileName>Services\TransactionService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="ExpenseVoid.Services.TransactionTypeService">
+    <Position X="5" Y="11.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAAAAAAAAAAABQAAAQABAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Services\TransactionTypeService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="ExpenseVoid.Services.UserService">
+    <Position X="12" Y="11.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAEAAAAAAAEEAAAQAAEAACAAAAAAAAAAAAAAAIAAAAA=</HashCode>
+      <FileName>Services\UserService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Interface Name="ExpenseVoid.Interface.ICurrency" Collapsed="true">
+    <Position X="3.75" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Interface\ICurrency.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="ExpenseVoid.Interface.IDebt" Collapsed="true">
+    <Position X="5.5" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAQAAAAAAAAAIAAAAAgAAAQABEAAAAAAAAA=</HashCode>
+      <FileName>Interface\IDebt.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="ExpenseVoid.Interface.IGroup" Collapsed="true">
+    <Position X="7.25" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAACAAAAAAAAAAAAgAAAAAAAACAAAAg=</HashCode>
+      <FileName>Interface\IGroup.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="ExpenseVoid.Interface.IProfile" Collapsed="true">
+    <Position X="3.75" Y="9.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAEAQQAAAAAEAAAAAAAQ=</HashCode>
+      <FileName>Interface\IProfile.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="ExpenseVoid.Interface.ISource" Collapsed="true">
+    <Position X="5.5" Y="9.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQAAAAAQABBAAAAAABAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Interface\ISource.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="ExpenseVoid.Interface.ITag" Collapsed="true">
+    <Position X="7.25" Y="9.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAABAEAAAAAAAAEAAAAAEAAAAAAAAAAABAAA=</HashCode>
+      <FileName>Interface\ITag.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="ExpenseVoid.Interface.ITransaction" Collapsed="true">
+    <Position X="3.75" Y="10" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAAAAAAAAAAQAAAAACAACAAAAAAwAAAAAA=</HashCode>
+      <FileName>Interface\ITransaction.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="ExpenseVoid.Interface.ITransactionType" Collapsed="true">
+    <Position X="5.5" Y="10" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAAAAAAAAAAABAAAAQAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Interface\ITransactionType.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="ExpenseVoid.Interface.IUser" Collapsed="true">
+    <Position X="7.25" Y="10" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAEAAAAQAAEAAAAAAAAAAAAAAAAAAIAAAAA=</HashCode>
+      <FileName>Interface\IUser.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

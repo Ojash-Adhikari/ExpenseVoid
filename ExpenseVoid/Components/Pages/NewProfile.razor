@@ -112,6 +112,10 @@
             {
                 newProfile.User = currentUser;
             }
+            else
+            {
+                currentUser = await EmailToUserMap.GetUserByEmailAsync(Storage);
+            }
         }
         catch (Exception ex)
         {
@@ -168,7 +172,6 @@
             errorMessage = "";
             newProfile = new Profile
                 {
-                    User = new User(),
                     Group = new Group()
                 };
             selectedGroup = "";

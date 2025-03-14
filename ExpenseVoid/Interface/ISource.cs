@@ -13,5 +13,8 @@ namespace ExpenseVoid.Interface
         Task RemoveSourceAsync(Source source);
         Task EditSourceAsync(Source source);
         Task<List<Source>> LoadSourceAsync();
+        Task<List<Source>> GetSourceByUser(Guid userId);
+
+
     }
 }

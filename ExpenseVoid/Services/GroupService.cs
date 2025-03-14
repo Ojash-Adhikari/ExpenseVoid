@@ -130,5 +130,19 @@ namespace ExpenseVoid.Services
             }
         }
 
+        public async Task<List<Group>> GetGroupsByUserIdAsync(Guid userId)
+        {
+            try
+            {
+                var groups = await LoadGroupsAsync();
+                return groups.Where(t => t.User?.UserID == userId).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching Groups for user ID {userId}: {ex.Message}");
+                throw;
+            }
+        }
+
     }
 }

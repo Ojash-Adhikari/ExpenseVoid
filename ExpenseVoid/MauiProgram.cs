@@ -6,6 +6,7 @@ using ExpenseVoid.Provider;
 using Microcharts.Maui;
 using ExpenseVoid.Persistence;
 using ExpenseVoid.Helper;
+using CommunityToolkit.Maui;
 
 namespace ExpenseVoid
 {
@@ -17,6 +18,7 @@ namespace ExpenseVoid
             builder
                 .UseMauiApp<App>()
                 .UseMicrocharts()
+                .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {
                     // Custom Font
@@ -53,5 +55,6 @@ namespace ExpenseVoid
 
             return builder.Build();
         }
+
     }
 }

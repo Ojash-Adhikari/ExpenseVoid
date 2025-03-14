@@ -1,5 +1,119 @@
-﻿<h3>UserProfile</h3>
+﻿@* Directive statement Import *@
+@using Microsoft.JSInterop
+@using ExpenseVoid.Models
+@using ExpenseVoid.Services
+@using ExpenseVoid.Interface
+@using ExpenseVoid.Helper
+@using ExpenseVoid.Persistence
+
+@* Dependency Injection *@
+@inject IJSRuntime JSRuntime
+@inject ISource sourceService
+@inject ITransactionType transactionTypeService
+@inject EmailToUserMap EmailToUserMap
+@inject PreferencesStoreClone Storage
+@page "/UserProfile"
+
+<h3>User Profile</h3>
+
+@* CSS link *@
+<link rel="stylesheet" href="css/sidebar.css" />
+<link rel="stylesheet" href="css/Vanta.css" />
+<link rel="stylesheet" href="css/UserprofileAddon.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+@* JavaScript Imports *@
+<script src="js/sidebar.js"></script>
+<script src="js/Vanta.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    let card = document.querySelector(".retro-card");
+
+    card.addEventListener("mousemove", (e) => {
+        const rect = card.getBoundingClientRect();
+        const xAxis = (e.clientX - rect.left) / rect.width - 0.5;
+        const yAxis = (e.clientY - rect.top) / rect.height - 0.5;
+        card.style.transform = `rotateY(${xAxis * 40}deg) rotateX(${yAxis * -40}deg)`;
+    });
+
+    card.addEventListener("mouseleave", () => {
+        card.style.transform = "rotateY(0) rotateX(0)";
+    });
+
+
+</script>
+
+<body class="bg-gray-900 text-white">
+    <div id="vanta-bg" class="flex flex-col md:flex-row gap-4 p-4">
+        <!-- Sidebar / Navigation Menu -->
+        <div>
+            <NavMenu />
+        </div>
+
+        <!-- User Profile Card -->
+        <div class="scene mt-[200px] ml-[400px]">
+            <div class="retro-card">
+                <div class="retro-content">
+                    @if (currentUser != null)
+                    {
+                        <h2>@currentUser.FirstName @currentUser.LastName</h2>
+                        <p>Email: @currentUser.Email</p>
+                        <p>Gender: @currentUser.Gender</p>
+                        <p>Phone: @currentUser.Phone</p>
+                        <p>Balance: $@currentUser.Balance</p>
+                        <p>Address: @currentUser.PermanentAddress</p>
+                        
+                    }
+                    else
+                    {
+                        <p>Error: User not found or profile could not be loaded.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
 
 @code {
+    private User? currentUser;
+    private string errorMessage = string.Empty;
+    private bool vantaInitialized;
 
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            currentUser = await EmailToUserMap.GetUserByEmailAsync(Storage);
+
+            if (currentUser == null)
+            {
+                errorMessage = "User Not Found";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading user profile: {ex.Message}");
+        }
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !vantaInitialized)
+        {
+            try
+            {
+                vantaInitialized = true;
+
+                // Ensure scripts are loaded
+                await JSRuntime.InvokeVoidAsync("loadVantaScripts");
+
+                // Initialize Vanta.js
+                await JSRuntime.InvokeVoidAsync("initializeVanta");
+                await JSRuntime.InvokeVoidAsync("initializeCharts");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error initializing Vanta.js: {ex.Message}");
+            }
+        }
+    }
 }

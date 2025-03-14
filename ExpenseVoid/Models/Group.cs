@@ -8,7 +8,11 @@ namespace ExpenseVoid.Models
 {
     public class Group
     {
+        
         public Guid GroupID { get; set; } = Guid.NewGuid();
-        public string? GroupName { get; set; } // Cash, BankAccount, Asset, Credit
+        public User? User { get; set; }
+        public string? GroupName { get; set; }
+
+        
     }
 }

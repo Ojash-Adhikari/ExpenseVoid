@@ -18,5 +18,7 @@ namespace ExpenseVoid.Models
         public Boolean? IsCleared { get; set; }
         public string? Notes { get; set; }
         public string? DebtColor { get; set; }
+
+       
     }
 }
